@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+</head>
+<body>
+<div class="container">
+<h1>Login Form</h1>
+<hr>
+<form method="post">
+    {% csrf_token %}
+     <p>Enter Your Email</p>
+    <input type="email" placeholder="Enter Email" class="form-control" name="email"/>
+
+     <p>Enter Your Password</p>
+    <input type="password" placeholder="Enter Password" class="form-control" name="pswd"/>
+
+    <button class="btn btn-primary mt-3" type="submit">Signin</button>
+</form>
+    {% if messages %}
+    {% for m in messages %}
+        <p>{{ m }}</p>
+    {% endfor %}
+    {% endif %}
+    </div>
+</body>
+</html>

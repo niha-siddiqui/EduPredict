@@ -5,5 +5,7 @@ from .import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path("index", views.index,name="index"),
-    path('reg',views.register,name="reg")
+    path('reg',views.register,name="reg"),
+    path('log',views.login,name="log"),
+    path('logout',views.register,name="logout")
 ]

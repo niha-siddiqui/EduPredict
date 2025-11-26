@@ -71,3 +71,38 @@ def register(r):
             messages.error(r,f"Error : {error}")
             return redirect("reg")
     return render(r,"myapp/register.html")
+
+def login(r):
+    if r.method=="POST":
+        email = r.POST.get("email")
+        pswd = r.POST.get("pswd")
+
+        if not email or not pswd:
+            messages.error(r,"All Fields are required")
+            return redirect("log")
+
+        url = f"https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key={firebase_key}"
+        data = {
+            "email" : email,
+            "password" : pswd,
+            "returnSecureToken" : True
+        }
+
+        res = requests.post(url, data)
+
+        if res.status_code == 200:
+            user_Record = res.json()
+            r.session["idd"] = user_Record.get("idToken")
+            r.session["useremail"] = user_Record.get("email")
+            messages.success(r,"Login Sucessfully")
+            return redirect("predict")
+
+        else:
+            error = res.json().get("error",{}).get("message","")
+            messages.error(r,f"Error {error}")
+            return redirect("log")
+    return render(r,"myapp/login.html")
+
+def logout(r):
+    r.session.flush()
+    return redirect("log")
