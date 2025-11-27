@@ -7,8 +7,13 @@ firebase_key ="AIzaSyCZAFn21FZT4zh5qyN18_KuUH_hdSTg7Ow"
 import  requests
 
 # Create your views here.
+
+
 def index(r):
-    return render(r,"myapp/index.html")
+    user_email = r.session.get("useremail")  # session se email le lo
+    return render(r, "myapp/index.html", {"e": user_email})
+
+
 def register(r):
     if r.method == "POST":
         a  = r.POST.get("name")
@@ -95,7 +100,7 @@ def login(r):
             r.session["idd"] = user_Record.get("idToken")
             r.session["useremail"] = user_Record.get("email")
             messages.success(r,"Login Sucessfully")
-            return redirect("predict")
+            return redirect("index")
 
         else:
             error = res.json().get("error",{}).get("message","")
