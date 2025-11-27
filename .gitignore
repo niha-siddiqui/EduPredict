@@ -1,0 +1,8 @@
+
+mypro/myapp/__pycache__/__init__.cpython-314.pyc
+*.pyc
+mypro/myapp/__pycache__/admin.cpython-314.pyc
+mypro/myapp/__pycache__/apps.cpython-314.pyc
+mypro/myapp/__pycache__/models.cpython-314.pyc
+mypro/mypro/__pycache__/__init__.cpython-314.pyc
+mypro/mypro/__pycache__/settings.cpython-314.pyc
