@@ -1,0 +1,63 @@
+
+{% extends "master.html"%}
+{% block lala %}
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+  <section class="mt-5 features">
+    <div class="container">
+<form method="POST">
+    {% csrf_token %}
+
+    <label>GPA</label>
+    <select name="gpa">
+        <option value="1.5">1.5</option>
+        <option value="2.0">2.0</option>
+        <option value="2.5">2.5</option>
+        <option value="3.0">3.0</option>
+        <option value="3.5">3.5</option>
+    </select>
+
+    <label>Attendance %</label>
+    <select name="attendance">
+        <option value="30">30%</option>
+        <option value="50">50%</option>
+        <option value="60">60%</option>
+        <option value="75">75%</option>
+        <option value="85">85%</option>
+    </select>
+
+    <label>Class Engagement</label>
+    <select name="engagement">
+        <option value="1">Not Active</option>
+        <option value="2">Normal</option>
+        <option value="3">Active</option>
+    </select>
+
+    <label>Fee Issue</label>
+    <select name="fees_issue">
+        <option value="1">Cannot Afford</option>
+        <option value="0">No Issue</option>
+    </select>
+
+    <label>Family Support</label>
+    <select name="family_support">
+        <option value="1">Supportive</option>
+        <option value="0">Not Supportive</option>
+    </select>
+
+    <label>Travel Difficulty</label>
+    <select name="travel_issue">
+        <option value="1">Yes</option>
+        <option value="0">No</option>
+    </select>
+
+    <button type="submit">Predict Dropout</button>
+</form>
+    </div>
+  </section>
+{% endblock %}

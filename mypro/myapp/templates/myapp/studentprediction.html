@@ -1,0 +1,96 @@
+<form method="post">
+    {% csrf_token %}
+
+    <!-- Basic info -->
+    <label>First Name:</label>
+    <input type="text" name="first_name" required><br><br>
+
+    <label>Last Name:</label>
+    <input type="text" name="last_name" required><br><br>
+
+    <label>Gender:</label>
+    <select name="gender" required>
+        <option value="Male">Male</option>
+        <option value="Female">Female</option>
+        <option value="Other">Other</option>
+    </select><br><br>
+
+    <label>Age:</label>
+    <input type="number" name="age" min="5" max="18" required><br><br>
+
+    <label>Class:</label>
+<select name="class" required>
+    <option value="1">1</option>
+    <option value="2">2</option>
+    <option value="3">3</option>
+    <option value="4">4</option>
+    <option value="5">5</option>
+    <option value="6">6</option>
+    <option value="7">7</option>
+    <option value="8">8</option>
+    <option value="9">9</option>
+    <option value="10">10</option>
+</select><br><br>
+<br><br>
+
+    <!-- Marks -->
+    <label>Study Hours per Day:</label>
+    <input type="text" name="study_hours" required><br><br>
+    <label>Math Marks:</label>
+    <input type="text" name="math_marks" required><br><br>
+    <label>English Marks:</label>
+    <input type="text" name="english_marks" required><br><br>
+    <label>Science Marks:</label>
+    <input type="text" name="science_marks" required><br><br>
+    <label>Urdu Marks:</label>
+    <input type="text" name="urdu_marks" required><br><br>
+    <label>Biology Marks:</label>
+    <input type="text" name="biology_marks" required><br><br>
+    <label>Computer Marks:</label>
+    <input type="text" name="computer_marks" required><br><br>
+    <label>Arts Marks:</label>
+    <input type="text" name="arts_marks" required><br><br>
+
+    <!-- Interest & Strength -->
+    <label>Interest Area:</label>
+    <select name="interest" required>
+        <option value="Engineering">Engineering</option>
+        <option value="Medical">Medical</option>
+        <option value="Arts">Arts</option>
+        <option value="SocialScience">Social Science</option>
+    </select><br><br>
+
+    <label>Strength Subject:</label>
+    <input type="text" name="strength_subject" required><br><br>
+    <label>Weak Subject:</label>
+    <input type="text" name="weak_subject" required><br><br>
+
+   <label>Previous Percentage (%):</label>
+<input type="text" name="previous_percentage" required>
+
+    <button type="submit">Get Deep Prediction</button>
+</form>
+
+<hr>
+
+{% if suggestion %}
+    <h2>Student: {{ suggestion.first_name }} {{ suggestion.last_name }}</h2>
+    <h3>Gender: {{ suggestion.gender }}, Age: {{ suggestion.age }}, Class: {{ suggestion.class }}</h3>
+
+    <h2>Predicted Score: {{ suggestion.predicted_score }}%</h2>
+    <h3>Strength Subject: {{ suggestion.strength_subject }}</h3>
+    <h3>Top Field Recommendation: {{ suggestion.top_field }}</h3>
+
+    <h3>Top 3 Specializations:</h3>
+    <ol>
+        {% for sp in suggestion.top_specializations %}
+            <li>{{ sp }}</li>
+        {% endfor %}
+    </ol>
+
+    <h3>Improvement Feedback:</h3>
+    <p>{{ suggestion.improvement_feedback }}</p>
+{% endif %}
+
+</body>
+</html>

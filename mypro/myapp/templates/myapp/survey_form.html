@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Student Survey</title>
+</head>
+<body>
+    <h1>Student Personality & Academic Survey</h1>
+    <form method="post">
+        {% csrf_token %}
+
+        <!-- Academic Questions -->
+        <h2>Academic Behavior</h2>
+        <p>1. While studying, how often do you get distracted?</p>
+        <select name="q1">
+            <option>Never distracted</option>
+            <option>Rarely distracted</option>
+            <option>Sometimes distracted</option>
+            <option>Often distracted</option>
+            <option>Always distracted</option>
+        </select>
+
+        <p>2. Do you prefer studying alone or with friends?</p>
+        <select name="q2">
+            <option>Alone</option>
+            <option>With friends</option>
+            <option>Both</option>
+        </select>
+
+        <p>3. How do you revise for exams?</p>
+        <select name="q3">
+            <option>Reading notes</option>
+            <option>Watching videos</option>
+            <option>Practice problems</option>
+            <option>Group discussion</option>
+        </select>
+
+        <p>4. How often do you finish your homework on time?</p>
+        <select name="q4">
+            <option>Always</option>
+            <option>Often</option>
+            <option>Sometimes</option>
+            <option>Rarely</option>
+            <option>Never</option>
+        </select>
+
+        <p>5. Do you like to plan your study schedule or study spontaneously?</p>
+        <select name="q5">
+            <option>Plan study schedule</option>
+            <option>Spontaneous</option>
+            <option>Sometimes plan</option>
+        </select>
+
+        <p>6. When a topic is difficult, what do you usually do?</p>
+        <select name="q6">
+            <option>Try by myself</option>
+            <option>Ask teacher</option>
+            <option>Watch videos</option>
+            <option>Skip</option>
+        </select>
+
+        <!-- Personality Questions -->
+        <h2>Personality & Strength</h2>
+        <p>7. When solving problems, you...</p>
+        <select name="q7">
+            <option>Break into steps</option>
+            <option>Think creatively</option>
+            <option>Ask others</option>
+            <option>Try different methods</option>
+        </select>
+
+        <p>8. You prefer tasks that are...</p>
+        <select name="q8">
+            <option>Logical</option>
+            <option>Creative</option>
+            <option>Practical</option>
+            <option>Team-based</option>
+        </select>
+
+        <p>9. You enjoy activities like...</p>
+        <select name="q9">
+            <option>Coding</option>
+            <option>Art & Design</option>
+            <option>Experiments</option>
+            <option>Leading teams</option>
+        </select>
+
+        <p>10. When working in a team, you are...</p>
+        <select name="q10">
+            <option>Leader</option>
+            <option>Supporter</option>
+            <option>Idea generator</option>
+            <option>Observer</option>
+        </select>
+
+        <p>11. You are motivated by...</p>
+        <select name="q11">
+            <option>Achieving results</option>
+            <option>Learning new things</option>
+            <option>Creating something</option>
+            <option>Helping others</option>
+        </select>
+
+        <p>12. You like to learn by...</p>
+        <select name="q12">
+            <option>Reading</option>
+            <option>Listening</option>
+            <option>Doing</option>
+            <option>Watching</option>
+        </select>
+
+        <br><br>
+        <button type="submit">Submit</button>
+    </form>
+</body>
+</html>

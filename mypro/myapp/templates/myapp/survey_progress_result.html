@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Student Progress Result</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            background: #fff;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        h2 { color: #1E90FF; margin-bottom: 25px; }
+        p { font-size: 16px; line-height: 1.8; margin-bottom: 20px; text-align: justify; }
+        blockquote { font-style: italic; color: #555; border-left: 4px solid #1E90FF; padding-left: 15px; margin: 20px 0; }
+        canvas { margin-top: 30px; }
+        a {
+            display: inline-block;
+            margin-top: 25px;
+            padding: 10px 25px;
+            background: #1E90FF;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+        a:hover { background: #00BFFF; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Student Progress Result</h2>
+
+        <!-- Progress Bar -->
+        <div class="progress-container" style="background:#e0e0e0; border-radius:25px; margin:20px 0; height:25px; overflow:hidden;">
+            <div class="progress-bar" id="progressBar" style="height:100%; background:linear-gradient(to right, #1E90FF, #00BFFF); width:0; line-height:25px; color:white; font-weight:bold;">
+                {{ progress }}%
+            </div>
+        </div>
+
+        <!-- Paragraph Summary -->
+        <p>{{ paragraph }}</p>
+
+        <!-- Motivational Quote -->
+        <h3>Motivational Quote</h3>
+        <blockquote>{{ quote }}</blockquote>
+
+        <!-- Trait Scores Bar Chart -->
+        <canvas id="traitChart" width="400" height="200"></canvas>
+
+        <a href="{% url 'student_progress_survey' %}">Take Survey Again</a>
+    </div>
+
+    <script>
+        // Animate progress bar
+        const progressBar = document.getElementById('progressBar');
+        const width = progressBar.innerText.replace('%','');
+        progressBar.style.width = width + '%';
+
+        // Bar chart for traits
+        const ctx = document.getElementById('traitChart').getContext('2d');
+        const traitChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Focus', 'Study Method', 'Problem Solving', 'Motivation'],
+                datasets: [{
+                    label: 'Trait Scores (0-3)',
+                    data: [
+                        {{ trait_scores.focus.1|default:0 }},
+                        {{ trait_scores.study.1|default:0 }},
+                        {{ trait_scores.problem.1|default:0 }},
+                        {{ trait_scores.motivation.1|default:0 }}
+                    ],
+                    backgroundColor: [
+                        'rgba(30, 144, 255, 0.7)',
+                        'rgba(0, 191, 255, 0.7)',
+                        'rgba(135, 206, 250, 0.7)',
+                        'rgba(70, 130, 180, 0.7)'
+                    ],
+                    borderColor: [
+                        'rgba(30, 144, 255, 1)',
+                        'rgba(0, 191, 255, 1)',
+                        'rgba(135, 206, 250, 1)',
+                        'rgba(70, 130, 180, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: { y: { beginAtZero: true, max: 3 } },
+                plugins: { legend: { display: false } }
+            }
+        });
+    </script>
+</body>
+</html>

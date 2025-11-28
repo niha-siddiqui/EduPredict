@@ -1,0 +1,75 @@
+<h2>Dropout Prediction Result</h2>
+
+<p><b>Dropout Probability:</b> {{ probability }}%</p>
+
+{% if prediction == 1 %}
+    <p style="color:red;"><b>High Dropout Risk</b></p>
+{% else %}
+    <p style="color:green;"><b>Low Dropout Risk</b></p>
+{% endif %}
+
+<hr>
+<h4>Reasons for Risk:</h4>
+{% if reasons %}
+    <ul>
+    {% for r in reasons %}
+        <li>{{ r }}</li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>No major risk reasons detected.</p>
+{% endif %}
+
+<h4>Suggestions to Improve:</h4>
+{% if suggestions %}
+    <ul>
+    {% for s in suggestions %}
+        <li>{{ s }}</li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>Keep doing well — maintain attendance and assignments.</p>
+{% endif %}
+
+<hr>
+<h4>Risk Factor Chart</h4>
+<canvas id="riskChart" width="400" height="200"></canvas>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+var ctx = document.getElementById('riskChart').getContext('2d');
+
+// Use chart_labels and chart_values from view
+var labels = {{ chart_labels|safe }};
+var data = {{ chart_values|safe }};
+
+// Dynamic colors based on severity
+var colors = data.map(function(value){
+    if(value > 0.6){
+        return 'rgba(255, 99, 132, 0.7)'; // Red
+    } else if(value > 0.3){
+        return 'rgba(255, 159, 64, 0.7)'; // Orange
+    } else {
+        return 'rgba(75, 192, 192, 0.7)'; // Green
+    }
+});
+
+var riskChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+        labels: labels,
+        datasets: [{
+            label: 'Severity (0-1)',
+            data: data,
+            backgroundColor: colors,
+            borderColor: colors.map(c => c.replace('0.7','1')),
+            borderWidth: 1
+        }]
+    },
+    options: {
+        scales: {
+            y: { beginAtZero: true, max: 1 }
+        }
+    }
+});
+</script>`

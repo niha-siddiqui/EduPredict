@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Student Progress Survey</title>
+<style>
+    body { font-family: Arial, sans-serif; background: #f0f4f8; padding: 50px; text-align: center; }
+    form { display: inline-block; text-align: left; background: #fff; padding: 30px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+    label { font-weight: bold; }
+    select { margin: 5px 0 15px; width: 100%; padding: 8px; border-radius: 5px; border: 1px solid #ccc; }
+    button { background-color: #4CAF50; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; }
+    button:hover { background-color: #45a049; }
+    .progress-container { width: 100%; background: #eee; border-radius: 10px; margin-bottom: 20px; }
+    .progress-bar { width: 0%; height: 15px; background: #4CAF50; border-radius: 10px; text-align: center; color: white; }
+</style>
+</head>
+<body>
+<h1>Student Progress Survey</h1>
+<div class="progress-container">
+    <div class="progress-bar" id="progress-bar">0%</div>
+</div>
+<form method="POST" id="surveyForm">
+    {% csrf_token %}
+    {% for q in survey %}
+        <label>{{ forloop.counter }}. {{ q.text }}</label>
+        <select name="q{{ forloop.counter }}" onchange="updateProgress()">
+            <option value="" disabled selected>--Select an option--</option>
+            {% for option in q.options %}
+                <option value="{{ option }}">{{ option }}</option>
+            {% endfor %}
+        </select>
+    {% endfor %}
+    <button type="submit">Submit</button>
+</form>
+
+<script>
+function updateProgress() {
+    let total = {{ survey|length }};
+    let answered = 0;
+    for (let i = 1; i <= total; i++) {
+        let select = document.querySelector(`select[name='q${i}']`);
+        if (select.value) answered++;
+    }
+    let percent = Math.round((answered / total) * 100);
+    document.getElementById("progress-bar").style.width = percent + "%";
+    document.getElementById("progress-bar").innerText = percent + "%";
+}
+</script>
+</body>
+</html>

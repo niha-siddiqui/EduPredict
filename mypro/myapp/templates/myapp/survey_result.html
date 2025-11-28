@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Survey Result</title>
+</head>
+<body>
+
+    <h1>Your Personality & Academic Report</h1>
+
+    <p>{{ paragraph }}</p>
+
+    <h3>Motivational Quote</h3>
+    <p>{{ quote }}</p>
+
+    <h3>Your Score</h3>
+    <p>{{ score }}%</p>
+
+    <br>
+    <a href="{% url 'student_survey' %}">Take Survey Again</a>
+
+</body>
+</html>
