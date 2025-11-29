@@ -1,115 +1,380 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Student Survey</title>
-</head>
-<body>
-    <h1>Student Personality & Academic Survey</h1>
-    <form method="post">
-        {% csrf_token %}
+{% extends "master.html"%}
+{% block lala %}
 
-        <!-- Academic Questions -->
-        <h2>Academic Behavior</h2>
-        <p>1. While studying, how often do you get distracted?</p>
-        <select name="q1">
-            <option>Never distracted</option>
-            <option>Rarely distracted</option>
-            <option>Sometimes distracted</option>
-            <option>Often distracted</option>
-            <option>Always distracted</option>
-        </select>
+  <section class="features" style="background-color: #0c1228; padding: 100px 0;">
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-lg-10 col-md-11">
+          
+          <!-- Form Card -->
+          <div style="background: linear-gradient(135deg, rgba(22,34,57,0.95) 0%, rgba(12,18,40,0.98) 100%); padding: 60px; border-radius: 10px; box-shadow: 0px 10px 50px rgba(0,0,0,0.5); border: 1px solid rgba(245,164,37,0.1); position: relative; overflow: hidden;">
+            
+            <!-- Decorative Elements -->
+            <div style="position: absolute; top: -50px; right: -50px; width: 200px; height: 200px; background: radial-gradient(circle, rgba(245,164,37,0.1) 0%, transparent 70%); border-radius: 50%;"></div>
+            <div style="position: absolute; bottom: -30px; left: -30px; width: 150px; height: 150px; background: radial-gradient(circle, rgba(245,164,37,0.08) 0%, transparent 70%); border-radius: 50%;"></div>
 
-        <p>2. Do you prefer studying alone or with friends?</p>
-        <select name="q2">
-            <option>Alone</option>
-            <option>With friends</option>
-            <option>Both</option>
-        </select>
+            <!-- Header Section with Icon -->
+            <div style="text-align: center; margin-bottom: 50px; position: relative; z-index: 1;">
+              <div style="display: inline-block; background: linear-gradient(135deg, #f5a425 0%, #ff8800 100%); width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 25px; box-shadow: 0 8px 25px rgba(245,164,37,0.4); animation: pulse 2s infinite;">
+                <i class="fa fa-user-circle" style="font-size: 35px; color: #fff;"></i>
+              </div>
+              <h2 style="color: #fff; font-size: 36px; font-weight: 800; letter-spacing: 1px; margin-bottom: 15px; text-transform: uppercase;">
+                Student <span style="color: #f5a425;">Survey</span>
+              </h2>
+              <div style="width: 80px; height: 3px; background: linear-gradient(90deg, transparent, #f5a425, transparent); margin: 20px auto;"></div>
+              <p style="color: rgba(255,255,255,0.7); font-size: 15px; line-height: 26px; max-width: 600px; margin: 0 auto;">
+                Help us understand your personality and academic preferences to provide personalized guidance and support.
+              </p>
+            </div>
 
-        <p>3. How do you revise for exams?</p>
-        <select name="q3">
-            <option>Reading notes</option>
-            <option>Watching videos</option>
-            <option>Practice problems</option>
-            <option>Group discussion</option>
-        </select>
+            <form method="POST" style="position: relative; z-index: 1;">
+              {% csrf_token %}
 
-        <p>4. How often do you finish your homework on time?</p>
-        <select name="q4">
-            <option>Always</option>
-            <option>Often</option>
-            <option>Sometimes</option>
-            <option>Rarely</option>
-            <option>Never</option>
-        </select>
+              <!-- Academic Behavior Section -->
+              <div style="background: rgba(245,164,37,0.03); padding: 35px; border-radius: 8px; margin-bottom: 30px; border-left: 4px solid #f5a425;">
+                <h3 style="color: #f5a425; font-size: 20px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 30px;">
+                  <i class="fa fa-book" style="margin-right: 10px;"></i>Academic Behavior
+                </h3>
 
-        <p>5. Do you like to plan your study schedule or study spontaneously?</p>
-        <select name="q5">
-            <option>Plan study schedule</option>
-            <option>Spontaneous</option>
-            <option>Sometimes plan</option>
-        </select>
+                <div class="row">
+                  <!-- Question 1 -->
+                  <div class="col-md-6" style="margin-bottom: 30px;">
+                    <label style="display: block; color: rgba(255,255,255,0.9); font-size: 13px; font-weight: 600; margin-bottom: 12px; letter-spacing: 0.3px; line-height: 22px;">
+                      1. While studying, how often do you get distracted?
+                    </label>
+                    <select name="q1" required style="width: 100%; height: 55px; background-color: rgba(250,250,250,0.08); border: 2px solid rgba(250,250,250,0.1); border-radius: 5px; outline: none; color: #fff; font-size: 14px; padding: 0 20px; letter-spacing: 0.3px; transition: all 0.3s;">
+                      <option value="" disabled selected>Select your answer</option>
+                      <option>Never distracted</option>
+                      <option>Rarely distracted</option>
+                      <option>Sometimes distracted</option>
+                      <option>Often distracted</option>
+                      <option>Always distracted</option>
+                    </select>
+                  </div>
 
-        <p>6. When a topic is difficult, what do you usually do?</p>
-        <select name="q6">
-            <option>Try by myself</option>
-            <option>Ask teacher</option>
-            <option>Watch videos</option>
-            <option>Skip</option>
-        </select>
+                  <!-- Question 2 -->
+                  <div class="col-md-6" style="margin-bottom: 30px;">
+                    <label style="display: block; color: rgba(255,255,255,0.9); font-size: 13px; font-weight: 600; margin-bottom: 12px; letter-spacing: 0.3px; line-height: 22px;">
+                      2. Do you prefer studying alone or with friends?
+                    </label>
+                    <select name="q2" required style="width: 100%; height: 55px; background-color: rgba(250,250,250,0.08); border: 2px solid rgba(250,250,250,0.1); border-radius: 5px; outline: none; color: #fff; font-size: 14px; padding: 0 20px; letter-spacing: 0.3px; transition: all 0.3s;">
+                      <option value="" disabled selected>Select your answer</option>
+                      <option>Alone</option>
+                      <option>With friends</option>
+                      <option>Both</option>
+                    </select>
+                  </div>
 
-        <!-- Personality Questions -->
-        <h2>Personality & Strength</h2>
-        <p>7. When solving problems, you...</p>
-        <select name="q7">
-            <option>Break into steps</option>
-            <option>Think creatively</option>
-            <option>Ask others</option>
-            <option>Try different methods</option>
-        </select>
+                  <!-- Question 3 -->
+                  <div class="col-md-6" style="margin-bottom: 30px;">
+                    <label style="display: block; color: rgba(255,255,255,0.9); font-size: 13px; font-weight: 600; margin-bottom: 12px; letter-spacing: 0.3px; line-height: 22px;">
+                      3. How do you revise for exams?
+                    </label>
+                    <select name="q3" required style="width: 100%; height: 55px; background-color: rgba(250,250,250,0.08); border: 2px solid rgba(250,250,250,0.1); border-radius: 5px; outline: none; color: #fff; font-size: 14px; padding: 0 20px; letter-spacing: 0.3px; transition: all 0.3s;">
+                      <option value="" disabled selected>Select your answer</option>
+                      <option>Reading notes</option>
+                      <option>Watching videos</option>
+                      <option>Practice problems</option>
+                      <option>Group discussion</option>
+                    </select>
+                  </div>
 
-        <p>8. You prefer tasks that are...</p>
-        <select name="q8">
-            <option>Logical</option>
-            <option>Creative</option>
-            <option>Practical</option>
-            <option>Team-based</option>
-        </select>
+                  <!-- Question 4 -->
+                  <div class="col-md-6" style="margin-bottom: 30px;">
+                    <label style="display: block; color: rgba(255,255,255,0.9); font-size: 13px; font-weight: 600; margin-bottom: 12px; letter-spacing: 0.3px; line-height: 22px;">
+                      4. How often do you finish your homework on time?
+                    </label>
+                    <select name="q4" required style="width: 100%; height: 55px; background-color: rgba(250,250,250,0.08); border: 2px solid rgba(250,250,250,0.1); border-radius: 5px; outline: none; color: #fff; font-size: 14px; padding: 0 20px; letter-spacing: 0.3px; transition: all 0.3s;">
+                      <option value="" disabled selected>Select your answer</option>
+                      <option>Always</option>
+                      <option>Often</option>
+                      <option>Sometimes</option>
+                      <option>Rarely</option>
+                      <option>Never</option>
+                    </select>
+                  </div>
 
-        <p>9. You enjoy activities like...</p>
-        <select name="q9">
-            <option>Coding</option>
-            <option>Art & Design</option>
-            <option>Experiments</option>
-            <option>Leading teams</option>
-        </select>
+                  <!-- Question 5 -->
+                  <div class="col-md-6" style="margin-bottom: 30px;">
+                    <label style="display: block; color: rgba(255,255,255,0.9); font-size: 13px; font-weight: 600; margin-bottom: 12px; letter-spacing: 0.3px; line-height: 22px;">
+                      5. Do you like to plan your study schedule or study spontaneously?
+                    </label>
+                    <select name="q5" required style="width: 100%; height: 55px; background-color: rgba(250,250,250,0.08); border: 2px solid rgba(250,250,250,0.1); border-radius: 5px; outline: none; color: #fff; font-size: 14px; padding: 0 20px; letter-spacing: 0.3px; transition: all 0.3s;">
+                      <option value="" disabled selected>Select your answer</option>
+                      <option>Plan study schedule</option>
+                      <option>Spontaneous</option>
+                      <option>Sometimes plan</option>
+                    </select>
+                  </div>
 
-        <p>10. When working in a team, you are...</p>
-        <select name="q10">
-            <option>Leader</option>
-            <option>Supporter</option>
-            <option>Idea generator</option>
-            <option>Observer</option>
-        </select>
+                  <!-- Question 6 -->
+                  <div class="col-md-6" style="margin-bottom: 30px;">
+                    <label style="display: block; color: rgba(255,255,255,0.9); font-size: 13px; font-weight: 600; margin-bottom: 12px; letter-spacing: 0.3px; line-height: 22px;">
+                      6. When a topic is difficult, what do you usually do?
+                    </label>
+                    <select name="q6" required style="width: 100%; height: 55px; background-color: rgba(250,250,250,0.08); border: 2px solid rgba(250,250,250,0.1); border-radius: 5px; outline: none; color: #fff; font-size: 14px; padding: 0 20px; letter-spacing: 0.3px; transition: all 0.3s;">
+                      <option value="" disabled selected>Select your answer</option>
+                      <option>Try by myself</option>
+                      <option>Ask teacher</option>
+                      <option>Watch videos</option>
+                      <option>Skip</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
 
-        <p>11. You are motivated by...</p>
-        <select name="q11">
-            <option>Achieving results</option>
-            <option>Learning new things</option>
-            <option>Creating something</option>
-            <option>Helping others</option>
-        </select>
+              <!-- Personality & Strength Section -->
+              <div style="background: rgba(245,164,37,0.03); padding: 35px; border-radius: 8px; margin-bottom: 30px; border-left: 4px solid #4bc0c0;">
+                <h3 style="color: #4bc0c0; font-size: 20px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 30px;">
+                  <i class="fa fa-star" style="margin-right: 10px;"></i>Personality & Strength
+                </h3>
 
-        <p>12. You like to learn by...</p>
-        <select name="q12">
-            <option>Reading</option>
-            <option>Listening</option>
-            <option>Doing</option>
-            <option>Watching</option>
-        </select>
+                <div class="row">
+                  <!-- Question 7 -->
+                  <div class="col-md-6" style="margin-bottom: 30px;">
+                    <label style="display: block; color: rgba(255,255,255,0.9); font-size: 13px; font-weight: 600; margin-bottom: 12px; letter-spacing: 0.3px; line-height: 22px;">
+                      7. When solving problems, you...
+                    </label>
+                    <select name="q7" required style="width: 100%; height: 55px; background-color: rgba(250,250,250,0.08); border: 2px solid rgba(250,250,250,0.1); border-radius: 5px; outline: none; color: #fff; font-size: 14px; padding: 0 20px; letter-spacing: 0.3px; transition: all 0.3s;">
+                      <option value="" disabled selected>Select your answer</option>
+                      <option>Break into steps</option>
+                      <option>Think creatively</option>
+                      <option>Ask others</option>
+                      <option>Try different methods</option>
+                    </select>
+                  </div>
 
-        <br><br>
-        <button type="submit">Submit</button>
-    </form>
-</body>
-</html>
+                  <!-- Question 8 -->
+                  <div class="col-md-6" style="margin-bottom: 30px;">
+                    <label style="display: block; color: rgba(255,255,255,0.9); font-size: 13px; font-weight: 600; margin-bottom: 12px; letter-spacing: 0.3px; line-height: 22px;">
+                      8. You prefer tasks that are...
+                    </label>
+                    <select name="q8" required style="width: 100%; height: 55px; background-color: rgba(250,250,250,0.08); border: 2px solid rgba(250,250,250,0.1); border-radius: 5px; outline: none; color: #fff; font-size: 14px; padding: 0 20px; letter-spacing: 0.3px; transition: all 0.3s;">
+                      <option value="" disabled selected>Select your answer</option>
+                      <option>Logical</option>
+                      <option>Creative</option>
+                      <option>Practical</option>
+                      <option>Team-based</option>
+                    </select>
+                  </div>
+
+                  <!-- Question 9 -->
+                  <div class="col-md-6" style="margin-bottom: 30px;">
+                    <label style="display: block; color: rgba(255,255,255,0.9); font-size: 13px; font-weight: 600; margin-bottom: 12px; letter-spacing: 0.3px; line-height: 22px;">
+                      9. You enjoy activities like...
+                    </label>
+                    <select name="q9" required style="width: 100%; height: 55px; background-color: rgba(250,250,250,0.08); border: 2px solid rgba(250,250,250,0.1); border-radius: 5px; outline: none; color: #fff; font-size: 14px; padding: 0 20px; letter-spacing: 0.3px; transition: all 0.3s;">
+                      <option value="" disabled selected>Select your answer</option>
+                      <option>Coding</option>
+                      <option>Art & Design</option>
+                      <option>Experiments</option>
+                      <option>Leading teams</option>
+                    </select>
+                  </div>
+
+                  <!-- Question 10 -->
+                  <div class="col-md-6" style="margin-bottom: 30px;">
+                    <label style="display: block; color: rgba(255,255,255,0.9); font-size: 13px; font-weight: 600; margin-bottom: 12px; letter-spacing: 0.3px; line-height: 22px;">
+                      10. When working in a team, you are...
+                    </label>
+                    <select name="q10" required style="width: 100%; height: 55px; background-color: rgba(250,250,250,0.08); border: 2px solid rgba(250,250,250,0.1); border-radius: 5px; outline: none; color: #fff; font-size: 14px; padding: 0 20px; letter-spacing: 0.3px; transition: all 0.3s;">
+                      <option value="" disabled selected>Select your answer</option>
+                      <option>Leader</option>
+                      <option>Supporter</option>
+                      <option>Idea generator</option>
+                      <option>Observer</option>
+                    </select>
+                  </div>
+
+                  <!-- Question 11 -->
+                  <div class="col-md-6" style="margin-bottom: 30px;">
+                    <label style="display: block; color: rgba(255,255,255,0.9); font-size: 13px; font-weight: 600; margin-bottom: 12px; letter-spacing: 0.3px; line-height: 22px;">
+                      11. You are motivated by...
+                    </label>
+                    <select name="q11" required style="width: 100%; height: 55px; background-color: rgba(250,250,250,0.08); border: 2px solid rgba(250,250,250,0.1); border-radius: 5px; outline: none; color: #fff; font-size: 14px; padding: 0 20px; letter-spacing: 0.3px; transition: all 0.3s;">
+                      <option value="" disabled selected>Select your answer</option>
+                      <option>Achieving results</option>
+                      <option>Learning new things</option>
+                      <option>Creating something</option>
+                      <option>Helping others</option>
+                    </select>
+                  </div>
+
+                  <!-- Question 12 -->
+                  <div class="col-md-6" style="margin-bottom: 30px;">
+                    <label style="display: block; color: rgba(255,255,255,0.9); font-size: 13px; font-weight: 600; margin-bottom: 12px; letter-spacing: 0.3px; line-height: 22px;">
+                      12. You like to learn by...
+                    </label>
+                    <select name="q12" required style="width: 100%; height: 55px; background-color: rgba(250,250,250,0.08); border: 2px solid rgba(250,250,250,0.1); border-radius: 5px; outline: none; color: #fff; font-size: 14px; padding: 0 20px; letter-spacing: 0.3px; transition: all 0.3s;">
+                      <option value="" disabled selected>Select your answer</option>
+                      <option>Reading</option>
+                      <option>Listening</option>
+                      <option>Doing</option>
+                      <option>Watching</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Submit Button -->
+              <div style="text-align: center; margin-top: 45px;">
+                <button type="submit" style="background: linear-gradient(135deg, #f5a425 0%, #ff8800 100%); color: #fff; font-size: 15px; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 700; padding: 20px 60px; border: none; outline: none; cursor: pointer; transition: all 0.4s; border-radius: 50px; box-shadow: 0px 8px 30px rgba(245,164,37,0.4); position: relative; overflow: hidden;">
+                  <span style="position: relative; z-index: 1;">
+                    <i class="fa fa-paper-plane" style="margin-right: 12px;"></i>Submit Survey
+                  </span>
+                </button>
+              </div>
+
+            </form>
+
+            <!-- Information Note -->
+            <div style="margin-top: 45px; padding: 25px 30px; background: linear-gradient(135deg, rgba(245,164,37,0.08) 0%, rgba(245,164,37,0.03) 100%); border-left: 4px solid #f5a425; border-radius: 8px; position: relative; z-index: 1;">
+              <div style="display: flex; align-items: flex-start;">
+                <i class="fa fa-info-circle" style="color: #f5a425; font-size: 24px; margin-right: 18px; margin-top: 3px;"></i>
+                <div>
+                  <h5 style="color: #f5a425; font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 10px;">
+                    Why We Ask These Questions
+                  </h5>
+                  <p style="color: rgba(255,255,255,0.75); font-size: 13px; line-height: 24px; margin: 0;">
+                    Understanding your learning style and personality helps us provide personalized recommendations, suggest suitable study methods, and identify your strengths to help you excel academically.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <style>
+    /* Pulse Animation for Icon */
+    @keyframes pulse {
+      0%, 100% {
+        box-shadow: 0 8px 25px rgba(245,164,37,0.4);
+        transform: scale(1);
+      }
+      50% {
+        box-shadow: 0 8px 35px rgba(245,164,37,0.6);
+        transform: scale(1.05);
+      }
+    }
+
+    /* Select hover effects */
+    select:hover {
+      border-color: rgba(245,164,37,0.6) !important;
+      background-color: rgba(250,250,250,0.12) !important;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 20px rgba(245,164,37,0.2);
+    }
+
+    select:focus {
+      border-color: #f5a425 !important;
+      background-color: rgba(250,250,250,0.15) !important;
+      box-shadow: 0 0 0 3px rgba(245,164,37,0.2);
+      transform: translateY(-2px);
+    }
+
+    /* Button hover effect */
+    button[type="submit"]:hover {
+      transform: translateY(-3px);
+      box-shadow: 0px 12px 40px rgba(245,164,37,0.6);
+    }
+
+    button[type="submit"]:active {
+      transform: translateY(-1px);
+      box-shadow: 0px 6px 20px rgba(245,164,37,0.5);
+    }
+
+    button[type="submit"]::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+      transition: left 0.5s;
+    }
+
+    button[type="submit"]:hover::before {
+      left: 100%;
+    }
+
+    /* Dropdown arrow styling */
+    select {
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 14 14'%3E%3Cpath fill='%23f5a425' d='M7 10L2 5h10z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 20px center;
+      padding-right: 50px !important;
+      cursor: pointer;
+    }
+
+    /* Option styling */
+    select option {
+      background-color: #172238;
+      color: #fff;
+      padding: 12px;
+    }
+
+    select option:hover {
+      background-color: #f5a425;
+    }
+
+    /* Section Headers Glow Effect */
+    h3 i {
+      text-shadow: 0 0 10px rgba(245,164,37,0.5);
+    }
+
+    /* Mobile Responsiveness */
+    @media screen and (max-width: 767px) {
+      section.features > div > div > div > div {
+        padding: 40px 25px !important;
+      }
+
+      h2 {
+        font-size: 28px !important;
+      }
+
+      h3 {
+        font-size: 18px !important;
+      }
+
+      button[type="submit"] {
+        padding: 16px 40px !important;
+        font-size: 13px !important;
+        border-radius: 40px !important;
+      }
+
+      .col-lg-10 {
+        padding: 0 15px;
+      }
+
+      /* Make fields stack on mobile */
+      .col-md-6 {
+        margin-bottom: 25px !important;
+      }
+    }
+
+    @media screen and (max-width: 480px) {
+      h2 {
+        font-size: 24px !important;
+      }
+
+      section.features > div > div > div > div > div:first-child > div:first-child {
+        width: 65px !important;
+        height: 65px !important;
+      }
+
+      section.features > div > div > div > div > div:first-child > div:first-child i {
+        font-size: 28px !important;
+      }
+    }
+  </style>
+
+{% endblock %}

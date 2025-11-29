@@ -1,75 +1,287 @@
-<h2>Dropout Prediction Result</h2>
+{% extends "master.html"%}
+{% block lala %}
 
-<p><b>Dropout Probability:</b> {{ probability }}%</p>
+  <section class="features" style="background-color: #0c1228; padding: 100px 0;">
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-lg-10 col-md-11">
+          
+          <!-- Result Card -->
+          <div style="background: linear-gradient(135deg, rgba(22,34,57,0.95) 0%, rgba(12,18,40,0.98) 100%); padding: 60px; border-radius: 10px; box-shadow: 0px 10px 50px rgba(0,0,0,0.5); border: 1px solid rgba(245,164,37,0.1); position: relative; overflow: hidden;">
+            
+            <!-- Decorative Elements -->
+            <div style="position: absolute; top: -50px; right: -50px; width: 200px; height: 200px; background: radial-gradient(circle, rgba(245,164,37,0.1) 0%, transparent 70%); border-radius: 50%;"></div>
+            <div style="position: absolute; bottom: -30px; left: -30px; width: 150px; height: 150px; background: radial-gradient(circle, rgba(245,164,37,0.08) 0%, transparent 70%); border-radius: 50%;"></div>
 
-{% if prediction == 1 %}
-    <p style="color:red;"><b>High Dropout Risk</b></p>
-{% else %}
-    <p style="color:green;"><b>Low Dropout Risk</b></p>
-{% endif %}
+            <!-- Header Section -->
+            <div style="text-align: center; margin-bottom: 50px; position: relative; z-index: 1;">
+              <div style="display: inline-block; background: linear-gradient(135deg, #f5a425 0%, #ff8800 100%); width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 25px; box-shadow: 0 8px 25px rgba(245,164,37,0.4);">
+                <i class="fa fa-check-circle" style="font-size: 35px; color: #fff;"></i>
+              </div>
+              <h2 style="color: #fff; font-size: 36px; font-weight: 800; letter-spacing: 1px; margin-bottom: 15px; text-transform: uppercase;">
+                Analysis <span style="color: #f5a425;">Complete</span>
+              </h2>
+              <div style="width: 80px; height: 3px; background: linear-gradient(90deg, transparent, #f5a425, transparent); margin: 20px auto;"></div>
+              <p style="color: rgba(255,255,255,0.7); font-size: 15px;">
+                Your dropout risk assessment results
+              </p>
+            </div>
 
-<hr>
-<h4>Reasons for Risk:</h4>
-{% if reasons %}
-    <ul>
-    {% for r in reasons %}
-        <li>{{ r }}</li>
-    {% endfor %}
-    </ul>
-{% else %}
-    <p>No major risk reasons detected.</p>
-{% endif %}
+            <!-- Probability Display -->
+            <div style="background: rgba(245,164,37,0.05); padding: 40px; border-radius: 8px; margin-bottom: 40px; text-align: center; border: 2px solid rgba(245,164,37,0.2); position: relative; z-index: 1;">
+              <h3 style="color: rgba(255,255,255,0.8); font-size: 16px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 20px;">
+                Dropout Probability
+              </h3>
+              <div style="font-size: 72px; font-weight: 800; color: #f5a425; margin-bottom: 20px; text-shadow: 0 0 30px rgba(245,164,37,0.5);">
+                {{ probability }}%
+              </div>
+              
+              {% if prediction == 1 %}
+                <div style="display: inline-block; background: linear-gradient(135deg, rgba(255,99,132,0.2) 0%, rgba(255,99,132,0.1) 100%); padding: 15px 40px; border-radius: 50px; border: 2px solid rgba(255,99,132,0.5);">
+                  <i class="fa fa-exclamation-triangle" style="margin-right: 10px; color: #ff6384;"></i>
+                  <span style="color: #ff6384; font-size: 18px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">High Dropout Risk</span>
+                </div>
+              {% else %}
+                <div style="display: inline-block; background: linear-gradient(135deg, rgba(75,192,192,0.2) 0%, rgba(75,192,192,0.1) 100%); padding: 15px 40px; border-radius: 50px; border: 2px solid rgba(75,192,192,0.5);">
+                  <i class="fa fa-check-circle" style="margin-right: 10px; color: #4bc0c0;"></i>
+                  <span style="color: #4bc0c0; font-size: 18px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">Low Dropout Risk</span>
+                </div>
+              {% endif %}
+            </div>
 
-<h4>Suggestions to Improve:</h4>
-{% if suggestions %}
-    <ul>
-    {% for s in suggestions %}
-        <li>{{ s }}</li>
-    {% endfor %}
-    </ul>
-{% else %}
-    <p>Keep doing well — maintain attendance and assignments.</p>
-{% endif %}
+            <div class="row" style="position: relative; z-index: 1;">
+              <!-- Reasons Section -->
+              <div class="col-md-6" style="margin-bottom: 30px;">
+                <div style="background: rgba(245,164,37,0.03); padding: 30px; border-radius: 8px; border-left: 4px solid #ff6384; height: 100%;">
+                  <h4 style="color: #ff6384; font-size: 18px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 25px;">
+                    <i class="fa fa-warning" style="margin-right: 10px;"></i>Risk Factors Identified
+                  </h4>
+                  
+                  {% if reasons %}
+                    <ul style="list-style: none; padding: 0; margin: 0;">
+                      {% for r in reasons %}
+                        <li style="color: rgba(255,255,255,0.85); font-size: 14px; line-height: 28px; padding: 12px 0; border-bottom: 1px solid rgba(250,250,250,0.05); position: relative; padding-left: 30px;">
+                          <i class="fa fa-times-circle" style="position: absolute; left: 0; top: 15px; color: #ff6384; font-size: 16px;"></i>
+                          {{ r }}
+                        </li>
+                      {% endfor %}
+                    </ul>
+                  {% else %}
+                    <div style="text-align: center; padding: 30px 0;">
+                      <i class="fa fa-smile-o" style="font-size: 48px; color: #4bc0c0; margin-bottom: 15px; display: block;"></i>
+                      <p style="color: rgba(255,255,255,0.7); font-size: 14px; margin: 0;">No major risk factors detected. Great job!</p>
+                    </div>
+                  {% endif %}
+                </div>
+              </div>
 
-<hr>
-<h4>Risk Factor Chart</h4>
-<canvas id="riskChart" width="400" height="200"></canvas>
+              <!-- Suggestions Section -->
+              <div class="col-md-6" style="margin-bottom: 30px;">
+                <div style="background: rgba(245,164,37,0.03); padding: 30px; border-radius: 8px; border-left: 4px solid #4bc0c0; height: 100%;">
+                  <h4 style="color: #4bc0c0; font-size: 18px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 25px;">
+                    <i class="fa fa-lightbulb-o" style="margin-right: 10px;"></i>Improvement Suggestions
+                  </h4>
+                  
+                  {% if suggestions %}
+                    <ul style="list-style: none; padding: 0; margin: 0;">
+                      {% for s in suggestions %}
+                        <li style="color: rgba(255,255,255,0.85); font-size: 14px; line-height: 28px; padding: 12px 0; border-bottom: 1px solid rgba(250,250,250,0.05); position: relative; padding-left: 30px;">
+                          <i class="fa fa-check-circle" style="position: absolute; left: 0; top: 15px; color: #4bc0c0; font-size: 16px;"></i>
+                          {{ s }}
+                        </li>
+                      {% endfor %}
+                    </ul>
+                  {% else %}
+                    <div style="text-align: center; padding: 30px 0;">
+                      <i class="fa fa-trophy" style="font-size: 48px; color: #f5a425; margin-bottom: 15px; display: block;"></i>
+                      <p style="color: rgba(255,255,255,0.7); font-size: 14px; margin: 0;">Keep doing well — maintain attendance and assignments.</p>
+                    </div>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-var ctx = document.getElementById('riskChart').getContext('2d');
+            <!-- Chart Section -->
+            <div style="background: rgba(245,164,37,0.03); padding: 40px; border-radius: 8px; margin-top: 10px; border-left: 4px solid #f5a425; position: relative; z-index: 1;">
+              <h4 style="color: #f5a425; font-size: 18px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 30px; text-align: center;">
+                <i class="fa fa-bar-chart" style="margin-right: 10px;"></i>Risk Factor Analysis Chart
+              </h4>
+              
+              <div style="background: rgba(250,250,250,0.03); padding: 30px; border-radius: 8px;">
+                <canvas id="riskChart" style="max-height: 400px;"></canvas>
+              </div>
+            </div>
 
-// Use chart_labels and chart_values from view
-var labels = {{ chart_labels|safe }};
-var data = {{ chart_values|safe }};
+            <!-- Action Button -->
+            <div style="text-align: center; margin-top: 45px; position: relative; z-index: 1;">
+              <a href="/" style="display: inline-block; background: linear-gradient(135deg, #f5a425 0%, #ff8800 100%); color: #fff; font-size: 15px; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 700; padding: 20px 60px; border: none; outline: none; text-decoration: none; transition: all 0.4s; border-radius: 50px; box-shadow: 0px 8px 30px rgba(245,164,37,0.4);">
+                <i class="fa fa-refresh" style="margin-right: 12px;"></i>Analyze Again
+              </a>
+            </div>
 
-// Dynamic colors based on severity
-var colors = data.map(function(value){
-    if(value > 0.6){
-        return 'rgba(255, 99, 132, 0.7)'; // Red
-    } else if(value > 0.3){
-        return 'rgba(255, 159, 64, 0.7)'; // Orange
-    } else {
-        return 'rgba(75, 192, 192, 0.7)'; // Green
-    }
-});
+          </div>
 
-var riskChart = new Chart(ctx, {
-    type: 'bar',
-    data: {
-        labels: labels,
-        datasets: [{
-            label: 'Severity (0-1)',
-            data: data,
-            backgroundColor: colors,
-            borderColor: colors.map(c => c.replace('0.7','1')),
-            borderWidth: 1
-        }]
-    },
-    options: {
-        scales: {
-            y: { beginAtZero: true, max: 1 }
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    var ctx = document.getElementById('riskChart').getContext('2d');
+
+    // Use chart_labels and chart_values from view
+    var labels = {{ chart_labels|safe }};
+    var data = {{ chart_values|safe }};
+
+    // Dynamic colors based on severity
+    var colors = data.map(function(value){
+        if(value > 0.6){
+            return 'rgba(255, 99, 132, 0.8)'; // Red
+        } else if(value > 0.3){
+            return 'rgba(255, 159, 64, 0.8)'; // Orange
+        } else {
+            return 'rgba(75, 192, 192, 0.8)'; // Green
         }
+    });
+
+    var borderColors = data.map(function(value){
+        if(value > 0.6){
+            return 'rgba(255, 99, 132, 1)';
+        } else if(value > 0.3){
+            return 'rgba(255, 159, 64, 1)';
+        } else {
+            return 'rgba(75, 192, 192, 1)';
+        }
+    });
+
+    var riskChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Risk Severity (0-1)',
+                data: data,
+                backgroundColor: colors,
+                borderColor: borderColors,
+                borderWidth: 2,
+                borderRadius: 8,
+                borderSkipped: false,
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: {
+                    display: true,
+                    labels: {
+                        color: 'rgba(255,255,255,0.8)',
+                        font: {
+                            size: 14,
+                            weight: '600'
+                        },
+                        padding: 20
+                    }
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(22,34,57,0.95)',
+                    titleColor: '#f5a425',
+                    bodyColor: '#fff',
+                    borderColor: '#f5a425',
+                    borderWidth: 1,
+                    padding: 12,
+                    displayColors: true,
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.dataset.label || '';
+                            if (label) {
+                                label += ': ';
+                            }
+                            label += (context.parsed.y * 100).toFixed(1) + '%';
+                            return label;
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: { 
+                    beginAtZero: true, 
+                    max: 1,
+                    grid: {
+                        color: 'rgba(250,250,250,0.05)',
+                        borderColor: 'rgba(250,250,250,0.1)'
+                    },
+                    ticks: {
+                        color: 'rgba(255,255,255,0.7)',
+                        font: {
+                            size: 12
+                        },
+                        callback: function(value) {
+                            return (value * 100) + '%';
+                        }
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false,
+                        borderColor: 'rgba(250,250,250,0.1)'
+                    },
+                    ticks: {
+                        color: 'rgba(255,255,255,0.7)',
+                        font: {
+                            size: 12
+                        }
+                    }
+                }
+            }
+        }
+    });
+  </script>
+
+  <style>
+    /* Button hover effect */
+    a[href="/"]:hover {
+      transform: translateY(-3px);
+      box-shadow: 0px 12px 40px rgba(245,164,37,0.6);
     }
-});
-</script>`
+
+    a[href="/"]:active {
+      transform: translateY(-1px);
+    }
+
+    /* Mobile Responsiveness */
+    @media screen and (max-width: 767px) {
+      section.features > div > div > div > div {
+        padding: 40px 25px !important;
+      }
+
+      h2 {
+        font-size: 28px !important;
+      }
+
+      .col-md-6 {
+        margin-bottom: 20px !important;
+      }
+
+      div[style*="font-size: 72px"] {
+        font-size: 56px !important;
+      }
+
+      canvas {
+        max-height: 300px !important;
+      }
+    }
+
+    @media screen and (max-width: 480px) {
+      h2 {
+        font-size: 24px !important;
+      }
+
+      div[style*="font-size: 72px"] {
+        font-size: 48px !important;
+      }
+    }
+  </style>
+
+{% endblock %}
