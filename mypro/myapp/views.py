@@ -1,10 +1,13 @@
 import datetime
 
+from google.cloud.firestore import Query
 from django.contrib import messages
 from django.shortcuts import render, redirect
 from mypro.firebase_connection import database
 firebase_key ="AIzaSyCZAFn21FZT4zh5qyN18_KuUH_hdSTg7Ow"
 import  requests
+
+from mypro.firebase_connection import database
 
 # Create your views here.
 
@@ -564,3 +567,39 @@ def dropout_form(request):
 
     # For GET request, render the input form
     return render(request, "myapp/dropout_form.html")
+
+# Add this import at top if not already there
+
+
+
+# Add this function
+def contact(request):
+    if request.method == "POST":
+        name = request.POST.get("name")
+        email = request.POST.get("email")
+        phone = request.POST.get("phone")
+        subject = request.POST.get("subject")
+        message = request.POST.get("message")
+
+        # Validation
+        if not name or not email or not phone or not subject or not message:
+            messages.error(request, "All fields are required!")
+            return redirect("contact")
+
+        # Save to Firebase
+        try:
+            database.collection("Contact").add({
+                "name": name,
+                "email": email,
+                "phone": phone,
+                "subject": subject,
+                "message": message,
+                "created_at": datetime.datetime.utcnow()
+            })
+            messages.success(request, "Your message has been sent successfully! We'll get back to you soon.")
+            return redirect("contact")
+        except Exception as e:
+            messages.error(request, f"Error: {str(e)}")
+            return redirect("contact")
+
+    return render(request, "myapp/contact.html")
