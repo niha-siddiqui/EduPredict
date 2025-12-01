@@ -4,7 +4,7 @@ from google.cloud.firestore import Query
 from django.contrib import messages
 from django.shortcuts import render, redirect
 from mypro.firebase_connection import database
-firebase_key ="AIzaSyCZAFn21FZT4zh5qyN18_KuUH_hdSTg7Ow"
+firebase_key ="AIzaSyDOFYhIQer4q3MSeT-mOUMiG3Gd8s4gtiY"
 import  requests
 
 from mypro.firebase_connection import database
@@ -555,7 +555,11 @@ def dropout_form(request):
         # Convert chart_data to lists for template
         chart_labels = list(chart_data.keys())
         chart_values = list(chart_data.values())
-
+        database.collection("dropout_Record").add({
+            "email": str(request.session.get("useremail", "unknown")),
+            "dropout_prediction": int(pred),  # convert np.int64 → int
+            "reasons": list(map(str, reasons)),  # ensure pure Python list of strings
+        })
         return render(request, "myapp/dropout_result.html", {
             "prediction": pred,
             "probability": round(prob, 2),
