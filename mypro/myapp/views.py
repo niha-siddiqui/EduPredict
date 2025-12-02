@@ -4,7 +4,7 @@ from google.cloud.firestore import Query
 from django.contrib import messages
 from django.shortcuts import render, redirect
 from mypro.firebase_connection import database
-firebase_key ="AIzaSyDOFYhIQer4q3MSeT-mOUMiG3Gd8s4gtiY"
+firebase_key ="AIzaSyD8qf5ulXocDrn8llaJ-jv_70vve3GrjWc"
 import  requests
 
 from mypro.firebase_connection import database
@@ -132,11 +132,12 @@ def delete_record(r, id):
 
 
 
-
 import os
 import pandas as pd
 from django.shortcuts import render
 from django.conf import settings
+from mypro.firebase_connection import database  # Firebase connection
+import datetime
 
 # CSV path inside your app
 csv_path = os.path.join(settings.BASE_DIR, 'myapp', 'students_dataset.csv')
@@ -183,17 +184,30 @@ def generate_paragraph(responses):
 
 def student_survey(request):
     if request.method == 'POST':
+        # Collect responses
         responses = {f'q{i}': request.POST.get(f'q{i}', "") for i in range(1, 13)}
 
+        # Extra personalization fields
         responses['q13'] = "Analytical & Leader"
         responses['q14'] = "Kinesthetic & Reading"
         responses['q15'] = "Focused & Self-motivated"
 
+        # Generate paragraph
         paragraph = generate_paragraph(responses)
 
         # FINAL VALUES — NO ANALYSIS
         quote = "“The successful warrior is the average man, with laser-like focus.” – Bruce Lee"
         score = 75
+
+        # ---------------- Save to Firestore ----------------
+        database.collection("student_survey").add({
+            "email": str(request.session.get("useremail", "unknown")),  # User email from session
+            "responses": responses,
+            "paragraph": paragraph,
+            "quote": quote,
+            "score": score,
+            "created_at": datetime.datetime.utcnow()
+        })
 
         return render(request, 'myapp/survey_result.html', {
             'paragraph': paragraph,
@@ -212,6 +226,8 @@ from django.shortcuts import render
 import pandas as pd
 import joblib
 import os
+from mypro.firebase_connection import database  # Firebase connection
+import datetime
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 MODEL_PATH = os.path.join(BASE_DIR, "student_model.pkl")
@@ -283,7 +299,7 @@ def StudentPerformancePrediction(request):
         subjects = ["math_marks","english_marks","science_marks","urdu_marks",
                     "biology_marks","computer_marks","arts_marks"]
         total_marks = sum([form_data[sub] for sub in subjects])
-        max_total = len(subjects) * 100  # all subjects out of 100
+        max_total = len(subjects) * 100
         current_percentage = (total_marks / max_total) * 100
 
         # Improvement feedback
@@ -308,6 +324,18 @@ def StudentPerformancePrediction(request):
             "improvement_feedback": improvement_feedback
         }
 
+        # ---------------- Save to Firestore ----------------
+        database.collection("student_predictions").add({
+            "email": str(request.session.get("useremail", "unknown")),
+            "form_data": form_data,
+            "suggestion": suggestion,
+            "predicted_score": round(predicted_score, 2),
+            "current_percentage": round(current_percentage, 2),
+            "top_specializations": top_specializations,
+            "improvement_feedback": improvement_feedback,
+            "created_at": datetime.datetime.utcnow()
+        })
+
     return render(request, "myapp/studentprediction.html", {"suggestion": suggestion})
 
 
@@ -324,8 +352,10 @@ import os
 import pandas as pd
 from django.shortcuts import render
 from django.conf import settings
+from mypro.firebase_connection import database  # Firebase connection
+import datetime
 
-# CSV path inside your app (optional, if you want to use dataset later)
+# CSV path inside your app (optional)
 csv_path = os.path.join(settings.BASE_DIR, 'myapp', 'student_progress_dataset.csv')
 try:
     df = pd.read_csv(csv_path)
@@ -350,7 +380,6 @@ def generate_paragraph(responses):
     lines = []
     trait_scores = {}
 
-    # Focus scoring
     focus_map = {"Never distracted": 3, "Rarely distracted": 2, "Sometimes distracted": 1, "Often distracted": 0}
     score_focus = focus_map.get(responses.get('q1'), 1)
     if score_focus >= 2:
@@ -363,7 +392,6 @@ def generate_paragraph(responses):
         lines.append("You often get distracted; consider structured study habits to improve concentration.")
         trait_scores['focus'] = ('focus_low', score_focus)
 
-    # Study method
     study = responses.get('q2')
     if study == 'Alone':
         lines.append("You prefer studying alone, which helps you concentrate better.")
@@ -375,7 +403,6 @@ def generate_paragraph(responses):
         lines.append("You adapt your study style depending on the task, which is versatile and effective.")
         trait_scores['study'] = ('study_both', 3)
 
-    # Problem solving
     problem = responses.get('q4')
     if problem in ["Try by myself", "Practice problems"]:
         lines.append("You solve problems independently, strengthening your critical thinking skills.")
@@ -384,7 +411,6 @@ def generate_paragraph(responses):
         lines.append("You ask for help when needed, which shows you know how to collaborate effectively.")
         trait_scores['problem'] = ('problem_help', 2)
 
-    # Motivation
     motivation_map = {"Very motivated": 3, "Motivated": 2, "Neutral": 1, "Less motivated": 0}
     score_motivation = motivation_map.get(responses.get('q7'), 1)
     if score_motivation >= 2:
@@ -394,7 +420,6 @@ def generate_paragraph(responses):
         lines.append("You have moderate motivation; small daily goals can help you improve steadily.")
         trait_scores['motivation'] = ('motivation_medium', score_motivation)
 
-    # Personality / Learning / Behavior
     personality = f"You are {responses.get('q13', 'analytical & leader')}."
     learning = f"Your preferred learning style is {responses.get('q14', 'kinesthetic & reading')}."
     study_behavior = f"Your study behavior can be described as {responses.get('q15', 'focused & self-motivated')}."
@@ -402,16 +427,15 @@ def generate_paragraph(responses):
 
     paragraph = " ".join(lines)
 
-    # Determine dominant trait (highest score)
     dominant_trait = max(trait_scores.values(), key=lambda x: x[1])[0]
     quote = quotes_mapping.get(dominant_trait, "“Believe you can and you're halfway there.” – Theodore Roosevelt")
 
-    # Calculate overall progress percentage
     total_score = sum([v[1] for v in trait_scores.values()])
     max_score = len(trait_scores) * 3
     progress_percentage = int((total_score / max_score) * 100)
 
     return paragraph, quote, progress_percentage, trait_scores
+
 
 def student_progress_survey(request):
     survey = [
@@ -434,10 +458,20 @@ def student_progress_survey(request):
         # Optional extra data for personalization
         responses['q13'] = "You have unique strengths and the potential to grow in every area of learning."
         responses['q14'] = "Your learning style allows you to adapt and explore new ways of understanding concepts."
-        responses[
-            'q15'] = "Your study habits reflect your dedication, and with consistent effort, you can achieve even more."
+        responses['q15'] = "Your study habits reflect your dedication, and with consistent effort, you can achieve even more."
 
         paragraph, quote, progress, trait_scores = generate_paragraph(responses)
+
+        # ---------------- Save to Firestore ----------------
+        database.collection("student_progress").add({
+            "email": str(request.session.get("useremail", "unknown")),
+            "responses": responses,
+            "paragraph": paragraph,
+            "quote": quote,
+            "progress": progress,
+            "trait_scores": trait_scores,
+            "created_at": datetime.datetime.utcnow()
+        })
 
         return render(request, 'myapp/survey_progress_result.html', {
             'paragraph': paragraph,
@@ -607,3 +641,251 @@ def contact(request):
             return redirect("contact")
 
     return render(request, "myapp/contact.html")
+
+
+
+
+
+
+
+
+
+
+
+
+
+### Admin ###
+
+import datetime
+from django.contrib import messages
+from django.shortcuts import render, redirect
+from mypro.firebase_connection import database
+from google.cloud.firestore import Query
+from functools import wraps
+
+# Admin credentials (you can change these)
+ADMIN_USERNAME = "admin"
+ADMIN_PASSWORD = "admin123"
+
+
+# Decorator to check if admin is logged in
+def admin_required(view_func):
+    @wraps(view_func)
+    def wrapper(request, *args, **kwargs):
+        if not request.session.get('is_admin'):
+            messages.error(request, "Please login as admin to access this page")
+            return redirect('admin_login')
+        return view_func(request, *args, **kwargs)
+
+    return wrapper
+
+
+# Admin Login
+def admin_login(request):
+    if request.method == "POST":
+        username = request.POST.get("username")
+        password = request.POST.get("password")
+
+        if username == ADMIN_USERNAME and password == ADMIN_PASSWORD:
+            request.session['is_admin'] = True
+            request.session['admin_username'] = username
+            messages.success(request, "Admin login successful!")
+            return redirect('admin_dashboard')
+        else:
+            messages.error(request, "Invalid credentials!")
+            return redirect('admin_login')
+
+    return render(request, 'myapp/adminlogin.html')
+
+
+# Admin Logout
+def admin_logout(request):
+    request.session.flush()
+    messages.success(request, "Logged out successfully!")
+    return redirect('admin_login')
+
+
+# Admin Dashboard
+@admin_required
+def admin_dashboard(request):
+    # Count registered users
+    users = list(database.collection("registered_user").stream())
+    total_users = len(users)
+
+    # Count student predictions
+    predictions = list(database.collection("student_predictions").stream())
+    total_predictions = len(predictions)
+
+    # Count surveys
+    surveys = list(database.collection("student_survey").stream())
+    total_surveys = len(surveys)
+
+    # Count progress surveys
+    progress_surveys = list(database.collection("student_progress").stream())
+    total_progress = len(progress_surveys)
+
+    # Count dropout predictions
+    dropout_records = list(database.collection("dropout_Record").stream())
+    total_dropout = len(dropout_records)
+
+    # Count contact messages
+    contacts = list(database.collection("Contact").stream())
+    total_contacts = len(contacts)
+
+    # Recent activities (last 5)
+    recent_users = sorted(users, key=lambda x: x.to_dict().get('Created_at', datetime.datetime.min), reverse=True)[:5]
+    recent_contacts = sorted(contacts, key=lambda x: x.to_dict().get('created_at', datetime.datetime.min),
+                             reverse=True)[:5]
+
+    context = {
+        'total_users': total_users,
+        'total_predictions': total_predictions,
+        'total_surveys': total_surveys,
+        'total_progress': total_progress,
+        'total_dropout': total_dropout,
+        'total_contacts': total_contacts,
+        'recent_users': [u.to_dict() for u in recent_users],
+        'recent_contacts': [c.to_dict() for c in recent_contacts],
+    }
+
+    return render(request, 'myapp/admindashboard.html', context)
+
+
+# View All Registered Users
+@admin_required
+def admin_users(request):
+    users_data = database.collection("registered_user").order_by("Created_at", direction=Query.DESCENDING).stream()
+    users = []
+    for user in users_data:
+        user_dict = user.to_dict()
+        user_dict['id'] = user.id
+        users.append(user_dict)
+
+    return render(request, 'myapp/adminusers.html', {'users': users})
+
+
+# Delete User
+@admin_required
+def admin_delete_user(request, user_id):
+    database.collection("registered_user").document(user_id).delete()
+    messages.success(request, "User deleted successfully!")
+    return redirect('admin_users')
+
+
+# View All Student Predictions
+@admin_required
+def admin_predictions(request):
+    predictions_data = database.collection("student_predictions").order_by("created_at",
+                                                                           direction=Query.DESCENDING).stream()
+    predictions = []
+    for pred in predictions_data:
+        pred_dict = pred.to_dict()
+        pred_dict['id'] = pred.id
+        predictions.append(pred_dict)
+
+    return render(request, 'myapp/adminpredictionsdetail.html', {'predictions': predictions})
+
+
+# Delete Prediction
+@admin_required
+def admin_delete_prediction(request, pred_id):
+    database.collection("student_predictions").document(pred_id).delete()
+    messages.success(request, "Prediction deleted successfully!")
+    return redirect('admin_predictions')
+
+
+# View All Surveys
+@admin_required
+def admin_surveys(request):
+    surveys_data = database.collection("student_survey").order_by("created_at", direction=Query.DESCENDING).stream()
+    surveys = []
+    for survey in surveys_data:
+        survey_dict = survey.to_dict()
+        survey_dict['id'] = survey.id
+        surveys.append(survey_dict)
+
+    return render(request, 'myapp/adminsurveys.html', {'surveys': surveys})
+
+
+# Delete Survey
+@admin_required
+def admin_delete_survey(request, survey_id):
+    database.collection("student_survey").document(survey_id).delete()
+    messages.success(request, "Survey deleted successfully!")
+    return redirect('admin_surveys')
+
+
+# View All Progress Surveys
+@admin_required
+def admin_progress(request):
+    progress_data = database.collection("student_progress").order_by("created_at", direction=Query.DESCENDING).stream()
+    progress_list = []
+    for prog in progress_data:
+        prog_dict = prog.to_dict()
+        prog_dict['id'] = prog.id
+        progress_list.append(prog_dict)
+
+    return render(request, 'myapp/adminprogress.html', {'progress_list': progress_list})
+
+
+# Delete Progress Survey
+@admin_required
+def admin_delete_progress(request, progress_id):
+    database.collection("student_progress").document(progress_id).delete()
+    messages.success(request, "Progress survey deleted successfully!")
+    return redirect('admin_progress')
+
+
+# View All Dropout Records
+@admin_required
+def admin_dropout(request):
+    dropout_data = database.collection("dropout_Record").stream()
+    dropout_list = []
+    for drop in dropout_data:
+        drop_dict = drop.to_dict()
+        drop_dict['id'] = drop.id
+        dropout_list.append(drop_dict)
+
+    return render(request, 'myapp/admindropout.html', {'dropout_list': dropout_list})
+
+
+# Delete Dropout Record
+@admin_required
+def admin_delete_dropout(request, dropout_id):
+    database.collection("dropout_Record").document(dropout_id).delete()
+    messages.success(request, "Dropout record deleted successfully!")
+    return redirect('admin_dropout')
+
+
+# View All Contact Messages
+@admin_required
+def admin_contacts(request):
+    contacts_data = database.collection("Contact").order_by("created_at", direction=Query.DESCENDING).stream()
+    contacts = []
+    for contact in contacts_data:
+        contact_dict = contact.to_dict()
+        contact_dict['id'] = contact.id
+        contacts.append(contact_dict)
+
+    return render(request, 'myapp/admincontacts.html', {'contacts': contacts})
+
+
+# Delete Contact Message
+@admin_required
+def admin_delete_contact(request, contact_id):
+    database.collection("Contact").document(contact_id).delete()
+    messages.success(request, "Contact message deleted successfully!")
+    return redirect('admin_contacts')
+
+
+# View Prediction Details
+@admin_required
+def admin_prediction_detail(request, pred_id):
+    pred_doc = database.collection("student_predictions").document(pred_id).get()
+    if pred_doc.exists:
+        prediction = pred_doc.to_dict()
+        prediction['id'] = pred_doc.id
+        return render(request, 'myapp/adminpredictiondetail.html', {'prediction': prediction})
+    else:
+        messages.error(request, "Prediction not found!")
+        return redirect('admin_predictions')

@@ -3,7 +3,7 @@ from django.urls import path
 
 from .import views
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path('backend/', admin.site.urls),
     path("home", views.index,name="index"),
     path('reg',views.register,name="reg"),
     path('',views.login,name="log"),
@@ -13,4 +13,25 @@ urlpatterns = [
     path('survey_progress/', views.student_progress_survey, name='student_progress_survey'),
     path("dropout/", views.dropout_form, name="dropout"),
     path("contact", views.contact, name="contact"),
+
+    path("adminlogin/", views.admin_login, name="admin_login"),
+    path('adminlogout/', views.admin_logout, name='admin_logout'),
+    path('admindashboard/', views.admin_dashboard, name='admin_dashboard'),
+    path('adminusers/', views.admin_users, name='admin_users'),
+    path('admin/users/delete/<str:user_id>/', views.admin_delete_user, name='admin_delete_user'),
+    path('adminpredictions/', views.admin_predictions, name='admin_predictions'),
+    path('admin/predictions/delete/<str:pred_id>/', views.admin_delete_prediction, name='admin_delete_prediction'),
+    path('admin/predictions/detail/<str:pred_id>/', views.admin_prediction_detail, name='admin_prediction_detail'),
+    path('adminsurveys/', views.admin_surveys, name='admin_surveys'),
+    path('admin/surveys/delete/<str:survey_id>/', views.admin_delete_survey, name='admin_delete_survey'),
+    path('adminprogress/', views.admin_progress, name='admin_progress'),
+    path('admin/progress/delete/<str:progress_id>/', views.admin_delete_progress, name='admin_delete_progress'),
+    path('admindropout/', views.admin_dropout, name='admin_dropout'),
+    path('admin/dropout/delete/<str:dropout_id>/', views.admin_delete_dropout, name='admin_delete_dropout'),
+    path('admincontacts/', views.admin_contacts, name='admin_contacts'),
+    path('admin/contacts/delete/<str:contact_id>/', views.admin_delete_contact, name='admin_delete_contact'),
+
+
 ]
+
+
