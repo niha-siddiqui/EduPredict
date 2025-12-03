@@ -220,19 +220,21 @@ def student_survey(request):
 
 
 
-
-
 from django.shortcuts import render
 import pandas as pd
 import joblib
 import os
-from mypro.firebase_connection import database  # Firebase connection
-import datetime
 
+# ---------------------------
+# Load the trained model
+# ---------------------------
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-MODEL_PATH = os.path.join(BASE_DIR, "student_model.pkl")
+MODEL_PATH = os.path.join(BASE_DIR, "student_models.pkl")
 model = joblib.load(MODEL_PATH)
 
+# ---------------------------
+# Field Specializations
+# ---------------------------
 FIELD_SPECIALIZATION = {
     "Engineering": ["Software Engineer", "AI Specialist", "Robotics Engineer", "Data Scientist", "Electrical Engineer"],
     "Medical": ["Neurologist", "Gynologist", "Orthologist", "Cardiologist", "Surgeon"],
@@ -240,30 +242,55 @@ FIELD_SPECIALIZATION = {
     "SocialScience": ["Teacher", "Lawyer", "Counselor", "Political Analyst", "Sociologist"]
 }
 
+# ---------------------------
+# View Function
+# ---------------------------
 def StudentPerformancePrediction(request):
     suggestion = None
+    class_list = list(range(1, 11))  # Classes 1 to 10
 
     if request.method == "POST":
-        # Collect form data
-        form_data = {k: request.POST.get(k, 0) for k in [
-            "first_name","last_name","gender","age","class","previous_percentage",
+
+        # ---------------------------
+        # Collect all form fields
+        # ---------------------------
+        form_data = {k: request.POST.get(k, "") for k in [
+            "first_name","last_name","gender","age","class",
             "study_hours","math_marks","english_marks","science_marks","urdu_marks",
-            "biology_marks","computer_marks","arts_marks","interest","strength_subject","weak_subject"
+            "biology_marks","computer_marks","arts_marks",
+            "interest","strength_subject","weak_subject",
+            "previous_percentage"
         ]}
 
-        # Convert numeric safely
-        numeric_cols = ["age","previous_percentage","study_hours","math_marks","english_marks",
-                        "science_marks","urdu_marks","biology_marks","computer_marks","arts_marks"]
+        # ---------------------------
+        # Convert numeric fields safely
+        # ---------------------------
+        numeric_cols = [
+            "study_hours","math_marks","english_marks","science_marks","urdu_marks",
+            "biology_marks","computer_marks","arts_marks","previous_percentage","age","class"
+        ]
         for col in numeric_cols:
-            form_data[col] = float(form_data[col]) if str(form_data[col]).replace(".", "", 1).isdigit() else 0
+            form_data[col] = float(form_data[col]) if str(form_data[col]).replace(".","",1).isdigit() else 0
 
-        # Create DataFrame for prediction
+        # ---------------------------
+        # Prepare DataFrame for model
+        # ---------------------------
+        model_features = [
+            "study_hours","math_marks","english_marks","science_marks","urdu_marks",
+            "biology_marks","computer_marks","arts_marks",
+            "previous_percentage","interest","strength_subject","weak_subject"
+        ]
         input_df = pd.DataFrame([form_data])
+        input_df = input_df[model_features]
 
-        # Predict score
+        # ---------------------------
+        # Predict final score
+        # ---------------------------
         predicted_score = model.predict(input_df)[0]
 
-        # Map interest to field
+        # ---------------------------
+        # Determine top field and specializations
+        # ---------------------------
         interest_map = {
             "Engineering": "Engineering",
             "Medical": "Medical",
@@ -272,44 +299,49 @@ def StudentPerformancePrediction(request):
         }
         top_field = interest_map.get(form_data["interest"], form_data["interest"])
 
-        # Determine top 3 specializations based on marks
         if top_field == "Medical":
             sub_scores = {
-                "Neurologist": input_df["science_marks"].values[0]*0.4 + input_df["biology_marks"].values[0]*0.6,
-                "Gynologist": input_df["biology_marks"].values[0]*0.7 + input_df["science_marks"].values[0]*0.3,
-                "Orthologist": input_df["science_marks"].values[0]*0.5 + input_df["biology_marks"].values[0]*0.5,
-                "Cardiologist": input_df["biology_marks"].values[0]*0.6 + input_df["science_marks"].values[0]*0.4,
-                "Surgeon": input_df["biology_marks"].values[0]*0.5 + input_df["science_marks"].values[0]*0.5
+                "Neurologist": form_data["science_marks"]*0.4 + form_data["biology_marks"]*0.6,
+                "Gynologist": form_data["biology_marks"]*0.7 + form_data["science_marks"]*0.3,
+                "Orthologist": form_data["science_marks"]*0.5 + form_data["biology_marks"]*0.5,
+                "Cardiologist": form_data["biology_marks"]*0.6 + form_data["science_marks"]*0.4,
+                "Surgeon": form_data["biology_marks"]*0.5 + form_data["science_marks"]*0.5
             }
             top_specializations = sorted(sub_scores, key=sub_scores.get, reverse=True)[:3]
 
         elif top_field == "Engineering":
             sub_scores = {
-                "Software Engineer": input_df["computer_marks"].values[0]*0.7 + input_df["math_marks"].values[0]*0.3,
-                "AI Specialist": input_df["computer_marks"].values[0]*0.6 + input_df["math_marks"].values[0]*0.4,
-                "Robotics Engineer": input_df["computer_marks"].values[0]*0.5 + input_df["math_marks"].values[0]*0.5,
-                "Data Scientist": input_df["math_marks"].values[0]*0.6 + input_df["computer_marks"].values[0]*0.4,
-                "Electrical Engineer": input_df["math_marks"].values[0]*0.7 + input_df["science_marks"].values[0]*0.3
+                "Software Engineer": form_data["computer_marks"]*0.7 + form_data["math_marks"]*0.3,
+                "AI Specialist": form_data["computer_marks"]*0.6 + form_data["math_marks"]*0.4,
+                "Robotics Engineer": form_data["computer_marks"]*0.5 + form_data["math_marks"]*0.5,
+                "Data Scientist": form_data["math_marks"]*0.6 + form_data["computer_marks"]*0.4,
+                "Electrical Engineer": form_data["math_marks"]*0.7 + form_data["science_marks"]*0.3
             }
             top_specializations = sorted(sub_scores, key=sub_scores.get, reverse=True)[:3]
+
         else:
             top_specializations = FIELD_SPECIALIZATION.get(top_field, [])[:3]
 
+        # ---------------------------
         # Calculate current percentage
+        # ---------------------------
         subjects = ["math_marks","english_marks","science_marks","urdu_marks",
                     "biology_marks","computer_marks","arts_marks"]
         total_marks = sum([form_data[sub] for sub in subjects])
-        max_total = len(subjects) * 100
-        current_percentage = (total_marks / max_total) * 100
+        current_percentage = (total_marks / (len(subjects) * 100)) * 100
 
+        # ---------------------------
         # Improvement feedback
+        # ---------------------------
         prev = form_data["previous_percentage"]
         if current_percentage < prev:
-            improvement_feedback = f"Your score decreased from {prev:.2f}% to {current_percentage:.2f}%. Try to study more and stay focused!"
+            improvement_feedback = f"Your score decreased from {prev}% to {current_percentage:.2f}%. Work harder!"
         else:
-            improvement_feedback = f"Great job! Your score improved from {prev:.2f}% to {current_percentage:.2f}%. Keep up the hard work!"
+            improvement_feedback = f"Great job! Improved from {prev}% to {current_percentage:.2f}%!"
 
-        # Prepare suggestion
+        # ---------------------------
+        # Prepare suggestion dict
+        # ---------------------------
         suggestion = {
             "first_name": form_data["first_name"].capitalize(),
             "last_name": form_data["last_name"].capitalize(),
@@ -324,19 +356,16 @@ def StudentPerformancePrediction(request):
             "improvement_feedback": improvement_feedback
         }
 
-        # ---------------- Save to Firestore ----------------
-        database.collection("student_predictions").add({
-            "email": str(request.session.get("useremail", "unknown")),
-            "form_data": form_data,
-            "suggestion": suggestion,
-            "predicted_score": round(predicted_score, 2),
-            "current_percentage": round(current_percentage, 2),
-            "top_specializations": top_specializations,
-            "improvement_feedback": improvement_feedback,
-            "created_at": datetime.datetime.utcnow()
-        })
+    # ---------------------------
+    # Render template
+    # ---------------------------
+    return render(request, "myapp/studentprediction.html", {
+        "suggestion": suggestion,
+        "class_list": class_list
+    })
 
-    return render(request, "myapp/studentprediction.html", {"suggestion": suggestion})
+
+
 
 
 
@@ -860,12 +889,15 @@ def admin_delete_dropout(request, dropout_id):
 # View All Contact Messages
 @admin_required
 def admin_contacts(request):
-    contacts_data = database.collection("Contact").order_by("created_at", direction=Query.DESCENDING).stream()
+    contacts_data = database.collection("Contact").order_by("Record_at", direction=Query.DESCENDING).stream()
     contacts = []
+
+    print(contacts_data)
     for contact in contacts_data:
         contact_dict = contact.to_dict()
         contact_dict['id'] = contact.id
         contacts.append(contact_dict)
+
 
     return render(request, 'myapp/admincontacts.html', {'contacts': contacts})
 
