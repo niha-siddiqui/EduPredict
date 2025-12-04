@@ -8,7 +8,8 @@ urlpatterns = [
     path('reg',views.register,name="reg"),
     path('',views.login,name="log"),
     path('logout',views.register,name="logout"),
-    path('studentpre', views.StudentPerformancePrediction, name="spredict"),  # changed
+    path('predict_full/', views.predict_student_full_detailed, name='predict_student_full'), #neww
+  # changed
     path('survey/', views.student_survey, name='student_survey'),
     path('survey_progress/', views.student_progress_survey, name='student_progress_survey'),
     path("dropout/", views.dropout_form, name="dropout"),
@@ -19,6 +20,11 @@ urlpatterns = [
     path('admindashboard/', views.admin_dashboard, name='admin_dashboard'),
     path('adminusers/', views.admin_users, name='admin_users'),
     path('admin/users/delete/<str:user_id>/', views.admin_delete_user, name='admin_delete_user'),
+
+    path('admin/performance/', views.admin_performance, name='admin_performance'),
+    path('admin/performance/delete/<str:perf_id>/', views.admin_delete_performance, name='admin_delete_performance'),
+
+
     path('adminpredictions/', views.admin_predictions, name='admin_predictions'),
     path('admin/predictions/delete/<str:pred_id>/', views.admin_delete_prediction, name='admin_delete_prediction'),
     path('admin/predictions/detail/<str:pred_id>/', views.admin_prediction_detail, name='admin_prediction_detail'),

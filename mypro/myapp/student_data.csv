@@ -1,4 +1,4 @@
-study_hours,math_marks,english_marks,science_marks,urdu_marks,biology_marks,computer_marks,arts_marks,interest,strength_subject,weak_subject,final_score,previous_percentage
+study_hours,math_marks,english_marks,science_marks,urdu_marks,biology_marks,computer_marks,arts_marks,interest,strength_subject,weak_subject,previous_percentage,final_percentage
 1,50,60,55,65,0,0,60,Arts,english,math,57,55
 2,65,70,60,60,0,80,0,Engineering,maths,urdu,64,60
 3,80,75,70,70,80,90,0,Medical,science,english,74,70

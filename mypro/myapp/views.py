@@ -219,18 +219,17 @@ def student_survey(request):
 
 
 
-
 from django.shortcuts import render
 import pandas as pd
 import joblib
 import os
 
 # ---------------------------
-# Load the trained model
+# File paths
 # ---------------------------
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-MODEL_PATH = os.path.join(BASE_DIR, "student_models.pkl")
-model = joblib.load(MODEL_PATH)
+CSV_PATH = os.path.join(BASE_DIR, "student_data.csv")
+MODEL_PATH = os.path.join(BASE_DIR, "student_model.pkl")
 
 # ---------------------------
 # Field Specializations
@@ -243,126 +242,56 @@ FIELD_SPECIALIZATION = {
 }
 
 # ---------------------------
+# Load trained model
+# ---------------------------
+model = joblib.load(MODEL_PATH)
+
+# ---------------------------
 # View Function
 # ---------------------------
-def StudentPerformancePrediction(request):
+def student_prediction(request):
     suggestion = None
-    class_list = list(range(1, 11))  # Classes 1 to 10
 
     if request.method == "POST":
-
-        # ---------------------------
-        # Collect all form fields
-        # ---------------------------
+        # Collect form data
         form_data = {k: request.POST.get(k, "") for k in [
-            "first_name","last_name","gender","age","class",
             "study_hours","math_marks","english_marks","science_marks","urdu_marks",
-            "biology_marks","computer_marks","arts_marks",
-            "interest","strength_subject","weak_subject",
-            "previous_percentage"
+            "biology_marks","computer_marks","arts_marks","interest"
         ]}
 
-        # ---------------------------
-        # Convert numeric fields safely
-        # ---------------------------
-        numeric_cols = [
-            "study_hours","math_marks","english_marks","science_marks","urdu_marks",
-            "biology_marks","computer_marks","arts_marks","previous_percentage","age","class"
-        ]
+        # Convert numeric fields
+        numeric_cols = ["study_hours","math_marks","english_marks","science_marks","urdu_marks",
+                        "biology_marks","computer_marks","arts_marks"]
         for col in numeric_cols:
-            form_data[col] = float(form_data[col]) if str(form_data[col]).replace(".","",1).isdigit() else 0
+            try:
+                form_data[col] = float(form_data[col])
+            except:
+                form_data[col] = 0
 
-        # ---------------------------
-        # Prepare DataFrame for model
-        # ---------------------------
-        model_features = [
-            "study_hours","math_marks","english_marks","science_marks","urdu_marks",
-            "biology_marks","computer_marks","arts_marks",
-            "previous_percentage","interest","strength_subject","weak_subject"
-        ]
+        # Prepare input for model
         input_df = pd.DataFrame([form_data])
-        input_df = input_df[model_features]
+        input_df = input_df[numeric_cols]
 
-        # ---------------------------
-        # Predict final score
-        # ---------------------------
+        # Predict final percentage
         predicted_score = model.predict(input_df)[0]
 
-        # ---------------------------
         # Determine top field and specializations
-        # ---------------------------
-        interest_map = {
-            "Engineering": "Engineering",
-            "Medical": "Medical",
-            "Arts": "Arts",
-            "SocialScience": "SocialScience"
-        }
-        top_field = interest_map.get(form_data["interest"], form_data["interest"])
+        top_field = form_data["interest"]
+        top_specializations = FIELD_SPECIALIZATION.get(top_field, [])[:3]
 
-        if top_field == "Medical":
-            sub_scores = {
-                "Neurologist": form_data["science_marks"]*0.4 + form_data["biology_marks"]*0.6,
-                "Gynologist": form_data["biology_marks"]*0.7 + form_data["science_marks"]*0.3,
-                "Orthologist": form_data["science_marks"]*0.5 + form_data["biology_marks"]*0.5,
-                "Cardiologist": form_data["biology_marks"]*0.6 + form_data["science_marks"]*0.4,
-                "Surgeon": form_data["biology_marks"]*0.5 + form_data["science_marks"]*0.5
-            }
-            top_specializations = sorted(sub_scores, key=sub_scores.get, reverse=True)[:3]
-
-        elif top_field == "Engineering":
-            sub_scores = {
-                "Software Engineer": form_data["computer_marks"]*0.7 + form_data["math_marks"]*0.3,
-                "AI Specialist": form_data["computer_marks"]*0.6 + form_data["math_marks"]*0.4,
-                "Robotics Engineer": form_data["computer_marks"]*0.5 + form_data["math_marks"]*0.5,
-                "Data Scientist": form_data["math_marks"]*0.6 + form_data["computer_marks"]*0.4,
-                "Electrical Engineer": form_data["math_marks"]*0.7 + form_data["science_marks"]*0.3
-            }
-            top_specializations = sorted(sub_scores, key=sub_scores.get, reverse=True)[:3]
-
-        else:
-            top_specializations = FIELD_SPECIALIZATION.get(top_field, [])[:3]
-
-        # ---------------------------
-        # Calculate current percentage
-        # ---------------------------
-        subjects = ["math_marks","english_marks","science_marks","urdu_marks",
-                    "biology_marks","computer_marks","arts_marks"]
-        total_marks = sum([form_data[sub] for sub in subjects])
-        current_percentage = (total_marks / (len(subjects) * 100)) * 100
-
-        # ---------------------------
-        # Improvement feedback
-        # ---------------------------
-        prev = form_data["previous_percentage"]
-        if current_percentage < prev:
-            improvement_feedback = f"Your score decreased from {prev}% to {current_percentage:.2f}%. Work harder!"
-        else:
-            improvement_feedback = f"Great job! Improved from {prev}% to {current_percentage:.2f}%!"
-
-        # ---------------------------
-        # Prepare suggestion dict
-        # ---------------------------
+        # Suggestion dict
         suggestion = {
-            "first_name": form_data["first_name"].capitalize(),
-            "last_name": form_data["last_name"].capitalize(),
-            "gender": form_data["gender"],
-            "age": int(form_data["age"]),
-            "class": int(form_data["class"]),
-            "predicted_score": round(predicted_score, 2),
-            "current_percentage": round(current_percentage, 2),
-            "strength_subject": form_data["strength_subject"].capitalize(),
+            "predicted_score": round(predicted_score,2),
             "top_field": top_field,
-            "top_specializations": top_specializations,
-            "improvement_feedback": improvement_feedback
+            "top_specializations": top_specializations
         }
 
-    # ---------------------------
-    # Render template
-    # ---------------------------
-    return render(request, "myapp/studentprediction.html", {
-        "suggestion": suggestion,
-        "class_list": class_list
-    })
+        # Append new data to CSV for future retraining
+        new_row = form_data.copy()
+        new_row["final_percentage"] = predicted_score
+        pd.DataFrame([new_row]).to_csv(CSV_PATH, mode='a', header=False, index=False)
+
+    return render(request, "myapp/studentprediction.html", {"suggestion": suggestion})
 
 
 
@@ -675,6 +604,160 @@ def contact(request):
 
 
 
+from django.shortcuts import render
+import pandas as pd
+import joblib
+import os
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+CSV_FILE = os.path.join(BASE_DIR, "student_records_full.csv")
+MODEL_FILE = os.path.join(BASE_DIR, "student_model_full.pkl")
+
+FIELD_SPECIALIZATION = {
+    "Engineering": ["Software Engineer", "AI Specialist", "Robotics Engineer", "Data Scientist", "Electrical Engineer"],
+    "Medical": ["Neurologist", "Gynologist", "Orthologist", "Cardiologist", "Surgeon"],
+    "Arts": ["Graphic Designer", "Animator", "Photographer", "Fashion Designer", "Musician"],
+    "SocialScience": ["Teacher", "Lawyer", "Counselor", "Political Analyst", "Sociologist"]
+}
+
+SUBJECTS = ["Math","English","Science","Urdu","Biology","Computer","Arts"]
+
+model = joblib.load(MODEL_FILE)
+
+from django.shortcuts import render
+import pandas as pd
+import joblib
+import os
+import datetime
+from mypro.firebase_connection import database  # Firebase connection file
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+CSV_FILE = os.path.join(BASE_DIR, "student_records_full.csv")
+MODEL_FILE = os.path.join(BASE_DIR, "student_model_full.pkl")
+
+FIELD_SPECIALIZATION = {
+    "Engineering": ["Software Engineer", "AI Specialist", "Robotics Engineer", "Data Scientist", "Electrical Engineer"],
+    "Medical": ["Neurologist", "Gynologist", "Orthologist", "Cardiologist", "Surgeon"],
+    "Arts": ["Graphic Designer", "Animator", "Photographer", "Fashion Designer", "Musician"],
+    "SocialScience": ["Teacher", "Lawyer", "Counselor", "Political Analyst", "Sociologist"]
+}
+
+SUBJECTS = ["Math","English","Science","Urdu","Biology","Computer","Arts"]
+
+model = joblib.load(MODEL_FILE)
+
+def predict_student_full_detailed(request):
+    suggestion = None
+    class_list = list(range(1,11))  # Classes 1-10
+    interest_list = ["Engineering","Medical","Arts","SocialScience"]
+    subject_list = SUBJECTS
+
+    if request.method == "POST":
+        # Collect all form data
+        form = {k: request.POST.get(k, "") for k in [
+            "first_name","last_name","age","class",
+            "study_hours","math_marks","english_marks","science_marks","urdu_marks",
+            "biology_marks","computer_marks","arts_marks","interest",
+            "strength_subject","weak_subject","previous_percentage"
+        ]}
+
+        # Convert numeric fields
+        NUMERIC_FIELDS = ["age","class","study_hours","math_marks","english_marks","science_marks",
+                          "urdu_marks","biology_marks","computer_marks","arts_marks","previous_percentage"]
+        for f in NUMERIC_FIELDS:
+            try:
+                form[f] = float(form[f])
+            except:
+                form[f] = 0
+
+        # Prepare dataframe for model
+        input_df = pd.DataFrame([form])
+        MODEL_FIELDS = ["study_hours","math_marks","english_marks","science_marks","urdu_marks",
+                        "biology_marks","computer_marks","arts_marks"]
+        input_df = input_df[MODEL_FIELDS]
+
+        # Predict
+        predicted_score = model.predict(input_df)[0]
+
+        # Top field and specializations
+        top_field = form["interest"]
+        top_specializations = FIELD_SPECIALIZATION.get(top_field, [])[:3]
+
+        # Calculate subject-wise percentage
+        subject_marks = {
+            "Math": form["math_marks"],
+            "English": form["english_marks"],
+            "Science": form["science_marks"],
+            "Urdu": form["urdu_marks"],
+            "Biology": form["biology_marks"],
+            "Computer": form["computer_marks"],
+            "Arts": form["arts_marks"]
+        }
+        total_possible = 700  # 7 subjects * 100
+        total_obtained = sum(subject_marks.values())
+        overall_percentage = (total_obtained / total_possible) * 100
+
+        # Improvement feedback
+        prev = form["previous_percentage"]
+        if overall_percentage < prev:
+            feedback = f"Score decreased from {prev}% to {overall_percentage:.2f}%. Focus on weak areas!"
+        else:
+            feedback = f"Good! Improved from {prev}% to {overall_percentage:.2f}%."
+
+        # Suggestion dict
+        suggestion = {
+            "first_name": form["first_name"].capitalize(),
+            "last_name": form["last_name"].capitalize(),
+            "age": int(form["age"]),
+            "class": int(form["class"]),
+            "predicted_score": round(predicted_score,2),
+            "overall_percentage": round(overall_percentage,2),
+            "strength_subject": form["strength_subject"].capitalize(),
+            "weak_subject": form["weak_subject"].capitalize(),
+            "top_field": top_field,
+            "top_specializations": top_specializations,
+            "subject_marks": subject_marks,
+            "feedback": feedback
+        }
+
+        # ----------------- Save to CSV -----------------
+        new_record = form.copy()
+        new_record["final_percentage"] = predicted_score
+        pd.DataFrame([new_record]).to_csv(CSV_FILE, mode='a', header=False, index=False)
+
+        # ----------------- Save to Firebase -----------------
+        try:
+            database.collection("student_predictions").add({
+                "first_name": form["first_name"].capitalize(),
+                "last_name": form["last_name"].capitalize(),
+                "age": int(form["age"]),
+                "class": int(form["class"]),
+                "predicted_score": round(predicted_score,2),
+                "overall_percentage": round(overall_percentage,2),
+                "strength_subject": form["strength_subject"].capitalize(),
+                "weak_subject": form["weak_subject"].capitalize(),
+                "top_field": top_field,
+                "top_specializations": top_specializations,
+                "subject_marks": subject_marks,
+                "feedback": feedback,
+                "email": str(request.session.get("useremail", "unknown")),
+                "created_at": datetime.datetime.utcnow()
+            })
+        except Exception as e:
+            print("Firebase save error:", e)
+
+    return render(request, "myapp/student_prediction_full.html", {
+        "suggestion": suggestion,
+        "class_list": class_list,
+        "interest_list": interest_list,
+        "subject_list": subject_list
+    })
+
+
+
+
+
+
 
 
 
@@ -921,3 +1004,39 @@ def admin_prediction_detail(request, pred_id):
     else:
         messages.error(request, "Prediction not found!")
         return redirect('admin_predictions')
+
+
+@admin_required
+def admin_performance(request):
+    """Display all student performance records from Firebase"""
+    try:
+        performances_data = database.collection("student_predictions").order_by(
+            "created_at", direction=Query.DESCENDING
+        ).stream()
+
+        performances = []
+        for perf in performances_data:
+            perf_dict = perf.to_dict()
+            perf_dict['id'] = perf.id
+            performances.append(perf_dict)
+
+    except Exception as e:
+        messages.error(request, f"Error fetching performance records: {str(e)}")
+        performances = []
+
+    return render(request, 'myapp/adminperformance.html', {'performances': performances})
+
+
+@admin_required
+def admin_delete_performance(request, perf_id):
+    """Delete a performance record from Firebase"""
+    try:
+        database.collection("student_predictions").document(perf_id).delete()
+        messages.success(request, "Performance record deleted successfully!")
+    except Exception as e:
+        messages.error(request, f"Error deleting record: {str(e)}")
+
+    return redirect('admin_performance')
+
+
+

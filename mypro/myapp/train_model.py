@@ -1,37 +1,27 @@
 import pandas as pd
-from sklearn.compose import ColumnTransformer
-from sklearn.preprocessing import OneHotEncoder
 from sklearn.ensemble import RandomForestRegressor
-from sklearn.pipeline import Pipeline
 import joblib
+import os
 
-# Load updated CSV
-df = pd.read_csv("student_data.csv")
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+CSV_PATH = os.path.join(BASE_DIR, "student_data.csv")
+MODEL_PATH = os.path.join(BASE_DIR, "student_model.pkl")
 
-# Features & Target
-X = df.drop("final_score", axis=1)
-y = df["final_score"]
+# Load CSV
+df = pd.read_csv(CSV_PATH)
 
-categorical_cols = ["interest", "strength_subject", "weak_subject"]
-numeric_cols = [
-    "study_hours", "math_marks", "english_marks", "science_marks", "urdu_marks",
-    "biology_marks", "computer_marks", "arts_marks", "previous_percentage"
-]
+# Features aur target
+features = ["study_hours","math_marks","english_marks","science_marks","urdu_marks",
+            "biology_marks","computer_marks","arts_marks"]
+target = "final_percentage"
 
-# Preprocessing pipeline
-preprocessor = ColumnTransformer([
-    ("num", "passthrough", numeric_cols),
-    ("cat", OneHotEncoder(handle_unknown="ignore"), categorical_cols)
-])
-
-model = Pipeline([
-    ("preprocess", preprocessor),
-    ("regressor", RandomForestRegressor(n_estimators=300, random_state=42))
-])
+X = df[features]
+y = df[target]
 
 # Train model
+model = RandomForestRegressor(n_estimators=100, random_state=42)
 model.fit(X, y)
 
 # Save model
-joblib.dump(model, "student_models.pkl")
-print("MODEL TRAINED & SAVED SUCCESSFULLY")
+joblib.dump(model, MODEL_PATH)
+print("Model trained and saved at:", MODEL_PATH)

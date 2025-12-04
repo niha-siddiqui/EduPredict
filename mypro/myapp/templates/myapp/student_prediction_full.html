@@ -1,0 +1,289 @@
+{% extends "master.html"%}
+{% block lala %}
+
+  <section class="features" style="background-color: #0c1228; padding: 100px 0;">
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-lg-10 col-md-11">
+          
+          <!-- Form/Result Card -->
+          <div style="background: linear-gradient(135deg, rgba(22,34,57,0.95) 0%, rgba(12,18,40,0.98) 100%); padding: 60px; border-radius: 10px; box-shadow: 0px 10px 50px rgba(0,0,0,0.5); border: 1px solid rgba(245,164,37,0.1); position: relative; overflow: hidden;">
+            
+            <!-- Decorative Elements -->
+            <div style="position: absolute; top: -50px; right: -50px; width: 200px; height: 200px; background: radial-gradient(circle, rgba(245,164,37,0.1) 0%, transparent 70%); border-radius: 50%;"></div>
+            <div style="position: absolute; bottom: -30px; left: -30px; width: 150px; height: 150px; background: radial-gradient(circle, rgba(245,164,37,0.08) 0%, transparent 70%); border-radius: 50%;"></div>
+
+            <!-- Header Section -->
+            <div style="text-align: center; margin-bottom: 50px; position: relative; z-index: 1;">
+              <div style="display: inline-block; background: linear-gradient(135deg, #f5a425 0%, #ff8800 100%); width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 25px; box-shadow: 0 8px 25px rgba(245,164,37,0.4); animation: pulse 2s infinite;">
+                <i class="fa fa-graduation-cap" style="font-size: 35px; color: #fff;"></i>
+              </div>
+              <h2 style="color: #fff; font-size: 36px; font-weight: 800; letter-spacing: 1px; margin-bottom: 15px; text-transform: uppercase;">
+                Student Performance <span style="color: #f5a425;">Prediction</span>
+              </h2>
+              <div style="width: 80px; height: 3px; background: linear-gradient(90deg, transparent, #f5a425, transparent); margin: 20px auto;"></div>
+            </div>
+
+            {% if not suggestion %}
+            <!-- Form Section -->
+            <form method="POST" style="position: relative; z-index: 1;">
+              {% csrf_token %}
+
+              <!-- Basic Information -->
+              <div style="background: rgba(245,164,37,0.03); padding: 35px; border-radius: 8px; margin-bottom: 30px; border-left: 4px solid #f5a425;">
+                <h3 style="color: #f5a425; font-size: 18px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 25px;">
+                  <i class="fa fa-user" style="margin-right: 10px;"></i>Basic Information
+                </h3>
+
+                <div class="row">
+                  <div class="col-md-6" style="margin-bottom: 25px;">
+                    <label style="display: block; color: rgba(255,255,255,0.9); font-size: 13px; font-weight: 600; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px;">First Name</label>
+                    <input type="text" name="first_name" required style="width: 100%; height: 55px; background-color: rgba(250,250,250,0.08); border: 2px solid rgba(250,250,250,0.1); border-radius: 5px; outline: none; color: #fff; font-size: 14px; padding: 0 20px; transition: all 0.3s;">
+                  </div>
+
+                  <div class="col-md-6" style="margin-bottom: 25px;">
+                    <label style="display: block; color: rgba(255,255,255,0.9); font-size: 13px; font-weight: 600; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px;">Last Name</label>
+                    <input type="text" name="last_name" required style="width: 100%; height: 55px; background-color: rgba(250,250,250,0.08); border: 2px solid rgba(250,250,250,0.1); border-radius: 5px; outline: none; color: #fff; font-size: 14px; padding: 0 20px; transition: all 0.3s;">
+                  </div>
+
+                  <div class="col-md-6" style="margin-bottom: 25px;">
+                    <label style="display: block; color: rgba(255,255,255,0.9); font-size: 13px; font-weight: 600; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px;">Age</label>
+                    <input type="text" name="age" required style="width: 100%; height: 55px; background-color: rgba(250,250,250,0.08); border: 2px solid rgba(250,250,250,0.1); border-radius: 5px; outline: none; color: #fff; font-size: 14px; padding: 0 20px; transition: all 0.3s;">
+                  </div>
+
+                  <div class="col-md-6" style="margin-bottom: 25px;">
+                    <label style="display: block; color: rgba(255,255,255,0.9); font-size: 13px; font-weight: 600; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px;">Class</label>
+                    <select name="class" style="width: 100%; height: 55px; background-color: rgba(250,250,250,0.08); border: 2px solid rgba(250,250,250,0.1); border-radius: 5px; outline: none; color: #fff; font-size: 14px; padding: 0 20px; transition: all 0.3s;">
+                      {% for c in class_list %}
+                      <option value="{{ c }}">{{ c }}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Academic Marks -->
+              <div style="background: rgba(245,164,37,0.03); padding: 35px; border-radius: 8px; margin-bottom: 30px; border-left: 4px solid #4bc0c0;">
+                <h3 style="color: #4bc0c0; font-size: 18px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 25px;">
+                  <i class="fa fa-book" style="margin-right: 10px;"></i>Academic Performance
+                </h3>
+
+                <div class="row">
+                  <div class="col-md-6" style="margin-bottom: 25px;">
+                    <label style="display: block; color: rgba(255,255,255,0.9); font-size: 13px; font-weight: 600; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px;">Study Hours</label>
+                    <input type="text" name="study_hours" required style="width: 100%; height: 55px; background-color: rgba(250,250,250,0.08); border: 2px solid rgba(250,250,250,0.1); border-radius: 5px; outline: none; color: #fff; font-size: 14px; padding: 0 20px; transition: all 0.3s;">
+                  </div>
+
+                  {% for sub in subject_list %}
+                  <div class="col-md-6" style="margin-bottom: 25px;">
+                    <label style="display: block; color: rgba(255,255,255,0.9); font-size: 13px; font-weight: 600; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px;">{{ sub }} Marks</label>
+                    <input type="text" name="{{ sub|lower }}_marks" required style="width: 100%; height: 55px; background-color: rgba(250,250,250,0.08); border: 2px solid rgba(250,250,250,0.1); border-radius: 5px; outline: none; color: #fff; font-size: 14px; padding: 0 20px; transition: all 0.3s;">
+                  </div>
+                  {% endfor %}
+                </div>
+              </div>
+
+              <!-- Interest Area -->
+              <div style="background: rgba(245,164,37,0.03); padding: 35px; border-radius: 8px; margin-bottom: 30px; border-left: 4px solid #ff9f40;">
+                <h3 style="color: #ff9f40; font-size: 18px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 25px;">
+                  <i class="fa fa-star" style="margin-right: 10px;"></i>Interest & Preferences
+                </h3>
+
+                <div class="row">
+                  <div class="col-md-4" style="margin-bottom: 25px;">
+                    <label style="display: block; color: rgba(255,255,255,0.9); font-size: 13px; font-weight: 600; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px;">Interest Area</label>
+                    <select name="interest" style="width: 100%; height: 55px; background-color: rgba(250,250,250,0.08); border: 2px solid rgba(250,250,250,0.1); border-radius: 5px; outline: none; color: #fff; font-size: 14px; padding: 0 20px; transition: all 0.3s;">
+                      {% for i in interest_list %}
+                      <option value="{{ i }}">{{ i }}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+
+                  <div class="col-md-4" style="margin-bottom: 25px;">
+                    <label style="display: block; color: rgba(255,255,255,0.9); font-size: 13px; font-weight: 600; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px;">Strength Subject</label>
+                    <select name="strength_subject" style="width: 100%; height: 55px; background-color: rgba(250,250,250,0.08); border: 2px solid rgba(250,250,250,0.1); border-radius: 5px; outline: none; color: #fff; font-size: 14px; padding: 0 20px; transition: all 0.3s;">
+                      {% for s in subject_list %}
+                      <option value="{{ s|lower }}">{{ s }}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+
+                  <div class="col-md-4" style="margin-bottom: 25px;">
+                    <label style="display: block; color: rgba(255,255,255,0.9); font-size: 13px; font-weight: 600; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px;">Weak Subject</label>
+                    <select name="weak_subject" style="width: 100%; height: 55px; background-color: rgba(250,250,250,0.08); border: 2px solid rgba(250,250,250,0.1); border-radius: 5px; outline: none; color: #fff; font-size: 14px; padding: 0 20px; transition: all 0.3s;">
+                      {% for s in subject_list %}
+                      <option value="{{ s|lower }}">{{ s }}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+
+                  <div class="col-md-12" style="margin-bottom: 25px;">
+                    <label style="display: block; color: rgba(255,255,255,0.9); font-size: 13px; font-weight: 600; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px;">Previous Percentage</label>
+                    <input type="text" name="previous_percentage" required style="width: 100%; height: 55px; background-color: rgba(250,250,250,0.08); border: 2px solid rgba(250,250,250,0.1); border-radius: 5px; outline: none; color: #fff; font-size: 14px; padding: 0 20px; transition: all 0.3s;">
+                  </div>
+                </div>
+              </div>
+
+              <!-- Submit Button -->
+              <div style="text-align: center; margin-top: 35px;">
+                <button type="submit" style="background: linear-gradient(135deg, #f5a425 0%, #ff8800 100%); color: #fff; font-size: 15px; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 700; padding: 20px 60px; border: none; outline: none; cursor: pointer; transition: all 0.4s; border-radius: 50px; box-shadow: 0px 8px 30px rgba(245,164,37,0.4); position: relative; overflow: hidden;">
+                  <span style="position: relative; z-index: 1;">
+                    <i class="fa fa-magic" style="margin-right: 12px;"></i>Predict
+                  </span>
+                </button>
+              </div>
+            </form>
+            {% endif %}
+
+            {% if suggestion %}
+            <!-- Result Section -->
+            <div style="position: relative; z-index: 1;">
+              
+              <!-- Student Name Header -->
+              <div style="background: rgba(245,164,37,0.08); padding: 30px; border-radius: 8px; margin-bottom: 30px; text-align: center; border: 2px solid rgba(245,164,37,0.2);">
+                <h2 style="color: #fff; font-size: 32px; font-weight: 800; margin-bottom: 10px;">
+                  {{ suggestion.first_name }} {{ suggestion.last_name }}
+                </h2>
+                <h3 style="color: rgba(255,255,255,0.7); font-size: 18px; font-weight: 600; margin: 0;">
+                  Age: {{ suggestion.age }}, Class: {{ suggestion.class }}
+                </h3>
+              </div>
+
+              <!-- Scores Row -->
+              <div class="row" style="margin-bottom: 30px;">
+                <div class="col-md-6" style="margin-bottom: 20px;">
+                  <div style="background: rgba(245,164,37,0.1); padding: 35px; border-radius: 8px; text-align: center; border-left: 4px solid #f5a425;">
+                    <h3 style="color: #f5a425; font-size: 16px; font-weight: 700; text-transform: uppercase; margin-bottom: 15px;">Predicted Score</h3>
+                    <div style="font-size: 56px; font-weight: 800; color: #f5a425; text-shadow: 0 0 20px rgba(245,164,37,0.5);">{{ suggestion.predicted_score }}%</div>
+                  </div>
+                </div>
+
+                <div class="col-md-6" style="margin-bottom: 20px;">
+                  <div style="background: rgba(75,192,192,0.1); padding: 35px; border-radius: 8px; text-align: center; border-left: 4px solid #4bc0c0;">
+                    <h3 style="color: #4bc0c0; font-size: 16px; font-weight: 700; text-transform: uppercase; margin-bottom: 15px;">Overall Percentage</h3>
+                    <div style="font-size: 56px; font-weight: 800; color: #4bc0c0; text-shadow: 0 0 20px rgba(75,192,192,0.5);">{{ suggestion.current_percentage }}%</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Info Cards -->
+              <div class="row" style="margin-bottom: 30px;">
+                <div class="col-md-6" style="margin-bottom: 20px;">
+                  <div style="background: rgba(245,164,37,0.05); padding: 25px; border-radius: 8px; border: 1px solid rgba(245,164,37,0.2); height: 100%;">
+                    <h3 style="color: #f5a425; font-size: 16px; font-weight: 700; text-transform: uppercase; margin-bottom: 15px;">
+                      <i class="fa fa-trophy" style="margin-right: 10px;"></i>Strength Subject
+                    </h3>
+                    <p style="color: rgba(255,255,255,0.9); font-size: 18px; margin: 0; text-transform: capitalize;">{{ suggestion.strength_subject }}</p>
+                  </div>
+                </div>
+
+                <div class="col-md-6" style="margin-bottom: 20px;">
+                  <div style="background: rgba(245,164,37,0.05); padding: 25px; border-radius: 8px; border: 1px solid rgba(245,164,37,0.2); height: 100%;">
+                    <h3 style="color: #f5a425; font-size: 16px; font-weight: 700; text-transform: uppercase; margin-bottom: 15px;">
+                      <i class="fa fa-lightbulb-o" style="margin-right: 10px;"></i>Top Field Recommendation
+                    </h3>
+                    <p style="color: rgba(255,255,255,0.9); font-size: 18px; margin: 0;">{{ suggestion.top_field }}</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Top 3 Specializations -->
+              <div style="background: rgba(245,164,37,0.03); padding: 35px; border-radius: 8px; margin-bottom: 30px; border-left: 4px solid #4bc0c0;">
+                <h3 style="color: #4bc0c0; font-size: 20px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 20px;">
+                  <i class="fa fa-star" style="margin-right: 10px;"></i>Top 3 Specializations
+                </h3>
+                <ol style="padding-left: 25px; margin: 0;">
+                  {% for sp in suggestion.top_specializations %}
+                  <li style="color: rgba(255,255,255,0.85); font-size: 16px; line-height: 32px; margin-bottom: 8px;">{{ sp }}</li>
+                  {% endfor %}
+                </ol>
+              </div>
+
+              <!-- Improvement Feedback -->
+              <div style="background: linear-gradient(135deg, rgba(245,164,37,0.1) 0%, rgba(245,164,37,0.05) 100%); padding: 35px; border-radius: 8px; margin-bottom: 30px; border-left: 4px solid #f5a425;">
+                <h3 style="color: #f5a425; font-size: 20px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 20px;">
+                  <i class="fa fa-comment" style="margin-right: 10px;"></i>Improvement Feedback
+                </h3>
+                <p style="color: rgba(255,255,255,0.85); font-size: 15px; line-height: 28px; margin: 0;">{{ suggestion.improvement_feedback }}</p>
+              </div>
+
+              <!-- Predict Again Button -->
+              <div style="text-align: center;">
+                <a href="{% url 'predict_student_full' %}" style="display: inline-block; background: linear-gradient(135deg, #f5a425 0%, #ff8800 100%); color: #fff; font-size: 15px; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 700; padding: 20px 50px; text-decoration: none; transition: all 0.4s; border-radius: 50px; box-shadow: 0px 8px 30px rgba(245,164,37,0.4);">
+                  <i class="fa fa-refresh" style="margin-right: 12px;"></i>Predict Again
+                </a>
+              </div>
+
+            </div>
+            {% endif %}
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <style>
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 8px 25px rgba(245,164,37,0.4); transform: scale(1); }
+      50% { box-shadow: 0 8px 35px rgba(245,164,37,0.6); transform: scale(1.05); }
+    }
+
+    input:hover, select:hover {
+      border-color: rgba(245,164,37,0.6) !important;
+      background-color: rgba(250,250,250,0.12) !important;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 20px rgba(245,164,37,0.2);
+    }
+
+    input:focus, select:focus {
+      border-color: #f5a425 !important;
+      background-color: rgba(250,250,250,0.15) !important;
+      box-shadow: 0 0 0 3px rgba(245,164,37,0.2);
+      transform: translateY(-2px);
+    }
+
+    button[type="submit"]:hover, a[href]:hover {
+      transform: translateY(-3px);
+      box-shadow: 0px 12px 40px rgba(245,164,37,0.6);
+    }
+
+    button[type="submit"]::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+      transition: left 0.5s;
+    }
+
+    button[type="submit"]:hover::before {
+      left: 100%;
+    }
+
+    select {
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 14 14'%3E%3Cpath fill='%23f5a425' d='M7 10L2 5h10z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 20px center;
+      padding-right: 50px !important;
+      cursor: pointer;
+    }
+
+    select option {
+      background-color: #172238;
+      color: #fff;
+    }
+
+    @media screen and (max-width: 767px) {
+      section.features > div > div > div > div { padding: 40px 25px !important; }
+      h2 { font-size: 28px !important; }
+      .col-md-4, .col-md-6 { margin-bottom: 20px !important; }
+      div[style*="font-size: 56px"] { font-size: 42px !important; }
+    }
+  </style>
+
+{% endblock %}
