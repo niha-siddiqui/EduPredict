@@ -218,80 +218,80 @@ def student_survey(request):
     return render(request, 'myapp/survey_form.html')
 
 
-
-from django.shortcuts import render
-import pandas as pd
-import joblib
-import os
-
-# ---------------------------
-# File paths
-# ---------------------------
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-CSV_PATH = os.path.join(BASE_DIR, "student_data.csv")
-MODEL_PATH = os.path.join(BASE_DIR, "student_model.pkl")
-
-# ---------------------------
-# Field Specializations
-# ---------------------------
-FIELD_SPECIALIZATION = {
-    "Engineering": ["Software Engineer", "AI Specialist", "Robotics Engineer", "Data Scientist", "Electrical Engineer"],
-    "Medical": ["Neurologist", "Gynologist", "Orthologist", "Cardiologist", "Surgeon"],
-    "Arts": ["Graphic Designer", "Animator", "Photographer", "Fashion Designer", "Musician"],
-    "SocialScience": ["Teacher", "Lawyer", "Counselor", "Political Analyst", "Sociologist"]
-}
-
-# ---------------------------
-# Load trained model
-# ---------------------------
-model = joblib.load(MODEL_PATH)
-
-# ---------------------------
-# View Function
-# ---------------------------
-def student_prediction(request):
-    suggestion = None
-
-    if request.method == "POST":
-        # Collect form data
-        form_data = {k: request.POST.get(k, "") for k in [
-            "study_hours","math_marks","english_marks","science_marks","urdu_marks",
-            "biology_marks","computer_marks","arts_marks","interest"
-        ]}
-
-        # Convert numeric fields
-        numeric_cols = ["study_hours","math_marks","english_marks","science_marks","urdu_marks",
-                        "biology_marks","computer_marks","arts_marks"]
-        for col in numeric_cols:
-            try:
-                form_data[col] = float(form_data[col])
-            except:
-                form_data[col] = 0
-
-        # Prepare input for model
-        input_df = pd.DataFrame([form_data])
-        input_df = input_df[numeric_cols]
-
-        # Predict final percentage
-        predicted_score = model.predict(input_df)[0]
-
-        # Determine top field and specializations
-        top_field = form_data["interest"]
-        top_specializations = FIELD_SPECIALIZATION.get(top_field, [])[:3]
-
-        # Suggestion dict
-        suggestion = {
-            "predicted_score": round(predicted_score,2),
-            "top_field": top_field,
-            "top_specializations": top_specializations
-        }
-
-        # Append new data to CSV for future retraining
-        new_row = form_data.copy()
-        new_row["final_percentage"] = predicted_score
-        pd.DataFrame([new_row]).to_csv(CSV_PATH, mode='a', header=False, index=False)
-
-    return render(request, "myapp/studentprediction.html", {"suggestion": suggestion})
+#
+# from django.shortcuts import render
+# import pandas as pd
+# import joblib
+# import os
+#
+# # ---------------------------
+# # File paths
+# # ---------------------------
+# BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+# CSV_PATH = os.path.join(BASE_DIR, "student_data.csv")
+# MODEL_PATH = os.path.join(BASE_DIR, "student_model.pkl")
+#
+# # ---------------------------
+# # Field Specializations
+# # ---------------------------
+# FIELD_SPECIALIZATION = {
+#     "Engineering": ["Software Engineer", "AI Specialist", "Robotics Engineer", "Data Scientist", "Electrical Engineer"],
+#     "Medical": ["Neurologist", "Gynologist", "Orthologist", "Cardiologist", "Surgeon"],
+#     "Arts": ["Graphic Designer", "Animator", "Photographer", "Fashion Designer", "Musician"],
+#     "SocialScience": ["Teacher", "Lawyer", "Counselor", "Political Analyst", "Sociologist"]
+# }
+#
+# # ---------------------------
+# # Load trained model
+# # ---------------------------
+# model = joblib.load(MODEL_PATH)
+#
+# # ---------------------------
+# # View Function
+# # ---------------------------
+# def student_prediction(request):
+#     suggestion = None
+#
+#     if request.method == "POST":
+#         # Collect form data
+#         form_data = {k: request.POST.get(k, "") for k in [
+#             "study_hours","math_marks","english_marks","science_marks","urdu_marks",
+#             "biology_marks","computer_marks","arts_marks","interest"
+#         ]}
+#
+#         # Convert numeric fields
+#         numeric_cols = ["study_hours","math_marks","english_marks","science_marks","urdu_marks",
+#                         "biology_marks","computer_marks","arts_marks"]
+#         for col in numeric_cols:
+#             try:
+#                 form_data[col] = float(form_data[col])
+#             except:
+#                 form_data[col] = 0
+#
+#         # Prepare input for model
+#         input_df = pd.DataFrame([form_data])
+#         input_df = input_df[numeric_cols]
+#
+#         # Predict final percentage
+#         predicted_score = model.predict(input_df)[0]
+#
+#         # Determine top field and specializations
+#         top_field = form_data["interest"]
+#         top_specializations = FIELD_SPECIALIZATION.get(top_field, [])[:3]
+#
+#         # Suggestion dict
+#         suggestion = {
+#             "predicted_score": round(predicted_score,2),
+#             "top_field": top_field,
+#             "top_specializations": top_specializations
+#         }
+#
+#         # Append new data to CSV for future retraining
+#         new_row = form_data.copy()
+#         new_row["final_percentage"] = predicted_ score
+#         pd.DataFrame([new_row]).to_csv(CSV_PATH, mode='a', header=False, index=False)
+#
+#     return render(request, "myapp/studentprediction.html", {"suggestion": suggestion})
 
 
 
@@ -752,6 +752,228 @@ def predict_student_full_detailed(request):
         "interest_list": interest_list,
         "subject_list": subject_list
     })
+
+
+# -------------------- Suggestion Result Page --------------------
+from django.shortcuts import render
+
+# Subjects list
+subjects = ["English", "Urdu", "Maths", "Physics", "Chemistry",
+            "Biology", "Computer", "Accounts", "SST", "Islamiat"]
+
+# -------------------- Suggestion Form Page --------------------
+def suggestion(request):
+    """
+    Display the form to input student details and marks.
+    """
+    return render(request, "myapp/suggestion.html", {
+        "subjects": subjects,
+        "marks_range": range(40, 101),  # Marks from 40 to 100
+        "class_range": range(6, 13)  # Classes 6 to 12
+    })
+
+# -------------------- Suggestion Result Page --------------------
+def suggestionresult(request):
+    """
+    Process submitted form and predict student future, field, careers, and motivation.
+    """
+    if request.method == "POST":
+        student = {}
+        student["name"] = request.POST.get("name")
+        student["student_class"] = request.POST.get("student_class")
+        student["favourite_subject"] = request.POST.get("favourite_subject")
+        student["weak_subject"] = request.POST.get("weak_subject")
+        student["previous_percentage"] = float(request.POST.get("previous_percentage"))
+
+        # Collect marks, handle "Not in syllabus"
+        marks = {}
+        for sub in subjects:
+            value = request.POST.get(sub)
+            if value == "Not in syllabus":
+                marks[sub] = None
+            else:
+                marks[sub] = int(value)
+
+        # Strength & Weakness subjects (exclude None)
+        valid_marks = {k: v for k, v in marks.items() if v is not None}
+        sorted_marks = sorted(valid_marks.items(), key=lambda x: x[1], reverse=True)
+        student["strength"] = dict(sorted_marks[:3])
+        student["weakness"] = dict(sorted_marks[-3:])
+
+        # Predicted average score (only syllabus subjects)
+        student["predicted_score"] = int(sum(valid_marks.values()) / len(valid_marks)) if valid_marks else 0
+
+        fav = student["favourite_subject"]
+        top_subjects = [sub for sub, mark in sorted_marks[:3]]  # Top 3 subjects
+
+        field = ""
+        careers = []
+        motivation = ""
+
+        # ---------------- NEW: Favourite + Top 3 Strengths Combination Logic ----------------
+        # Examples of multiple combinations (approx 40 combinations)
+        if fav == "Maths":
+            if "Physics" in top_subjects:
+                field = "Engineering / Data Science"
+                careers = ["AI Engineer", "Robotics Engineer", "Data Scientist", "Mechanical Engineer"]
+                motivation = f"You love {fav} and one of your top subjects is Physics. Engineering & Data Science are great options!"
+            elif "Biology" in top_subjects:
+                field = "Computational Biology / Bioinformatics"
+                careers = ["Bioinformatician", "Data Scientist in Biology", "Computational Biologist"]
+                motivation = f"You love {fav} and Biology is among your top subjects. Amazing for Computational Biology!"
+            elif "Computer" in top_subjects:
+                field = "Computer & IT / Analytics"
+                careers = ["AI Engineer", "Software Developer", "Data Analyst"]
+                motivation = f"Strong {fav} and Computer skills! Perfect for IT & Analytics careers."
+            elif "Accounts" in top_subjects:
+                field = "Finance & Analytics"
+                careers = ["Financial Analyst", "Accountant", "Economist", "Data Analyst"]
+                motivation = f"{fav} + Accounts skills are strong. Great for Finance & Analytics."
+            else:
+                field = "Maths & Science"
+                careers = ["Data Analyst", "Statistician", "Researcher"]
+                motivation = f"{fav} is your favourite and top subject. Many scientific careers await!"
+
+        elif fav == "Physics":
+            if "Maths" in top_subjects:
+                field = "Engineering / Research"
+                careers = ["Mechanical Engineer", "Civil Engineer", "Data Scientist", "Research Scientist"]
+                motivation = f"{fav} + Maths combination suits Engineering & Research."
+            elif "Chemistry" in top_subjects:
+                field = "Chemical Engineering / Science"
+                careers = ["Chemical Engineer", "Lab Researcher", "Materials Scientist"]
+                motivation = f"{fav} + Chemistry opens doors to Chemical Engineering & Science."
+            elif "Computer" in top_subjects:
+                field = "Engineering / IT"
+                careers = ["Robotics Engineer", "Software Developer", "AI Engineer"]
+                motivation = f"{fav} + Computer opens IT & Engineering opportunities."
+            else:
+                field = "Physics & Maths"
+                careers = ["Researcher", "Technician", "Lab Assistant"]
+                motivation = f"{fav} is your favourite. Focus on top strengths to grow in Science & Engineering."
+
+        elif fav == "Biology":
+            if "Chemistry" in top_subjects:
+                field = "Medical Science / Research"
+                careers = ["Doctor", "Pharmacist", "Biotechnologist", "Medical Researcher"]
+                motivation = f"{fav} + Chemistry gives strong career options in Medicine & Research."
+            elif "Maths" in top_subjects:
+                field = "Bioinformatics / Analytics"
+                careers = ["Bioinformatician", "Data Scientist in Biology", "Computational Biologist"]
+                motivation = f"{fav} + Maths is perfect for Computational Biology & Analytics."
+            elif "Computer" in top_subjects:
+                field = "Bioinformatics / IT"
+                careers = ["Bioinformatician", "Computational Biologist", "Data Scientist in Biology"]
+                motivation = f"{fav} + Computer opens opportunities in Bioinformatics & IT."
+            else:
+                field = "Medical & Biology"
+                careers = ["Lab Technician", "Nursing", "Biotechnologist"]
+                motivation = f"{fav} is your favourite. Focus on top subjects for medical careers."
+
+        elif fav == "Computer":
+            if "Maths" in top_subjects:
+                field = "Computer Science / AI"
+                careers = ["AI Developer", "Data Scientist", "Software Engineer", "Machine Learning Engineer"]
+                motivation = f"{fav} + Maths gives strong IT & AI career prospects."
+            elif "Physics" in top_subjects:
+                field = "IT & Engineering"
+                careers = ["AI Developer", "Software Engineer", "Robotics Engineer"]
+                motivation = f"{fav} + Physics skills suit IT & Engineering fields."
+            elif "Biology" in top_subjects:
+                field = "Bioinformatics / AI"
+                careers = ["Bioinformatician", "AI in Healthcare", "Data Scientist"]
+                motivation = f"{fav} + Biology gives opportunities in Bioinformatics & AI."
+            else:
+                field = "Computer & IT"
+                careers = ["Software Developer", "AI Engineer", "Data Scientist", "Cyber Security"]
+                motivation = f"{fav} is your favourite. Many IT careers await!"
+
+        elif fav == "Accounts":
+            if "Maths" in top_subjects:
+                field = "Finance / Analytics"
+                careers = ["Financial Analyst", "Economist", "Data Analyst"]
+                motivation = f"{fav} + Maths is perfect for Finance & Analytics."
+            elif "Computer" in top_subjects:
+                field = "Accounting & IT"
+                careers = ["Accounting Software Specialist", "Financial Analyst", "Auditor"]
+                motivation = f"{fav} + Computer opens Accounting & IT opportunities."
+            else:
+                field = "Commerce / Accounts"
+                careers = ["Chartered Accountant (CA)", "ACCA", "B.Com", "Auditor"]
+                motivation = f"{fav} is your favourite. Focus on top subjects for commerce careers."
+
+        elif fav == "English":
+            if "SST" in top_subjects:
+                field = "Arts & Social Sciences"
+                careers = ["Journalist", "Lawyer", "Teacher", "Psychologist"]
+                motivation = f"Strong {fav} and SST skills are perfect for Arts/Social Sciences."
+            elif "Computer" in top_subjects:
+                field = "Digital Content / IT"
+                careers = ["Content Writer", "Technical Writer", "Web Content Specialist"]
+                motivation = f"{fav} + Computer opens doors to Digital Content & IT fields."
+            else:
+                field = "Language & Arts"
+                careers = ["Writer", "Teacher", "Journalist"]
+                motivation = f"{fav} is your favourite. Many arts & social careers await!"
+
+        elif fav == "SST":
+            if "English" in top_subjects:
+                field = "Law / Social Sciences"
+                careers = ["Lawyer", "Researcher", "Social Worker", "Teacher"]
+                motivation = f"{fav} + English is strong for Law & Social Science careers."
+            elif "Computer" in top_subjects:
+                field = "IT & Social Sciences"
+                careers = ["Data Analyst", "Researcher", "Content Writer"]
+                motivation = f"{fav} + Computer is good for IT + Social Sciences roles."
+            else:
+                field = "Social Studies"
+                careers = ["Researcher", "Teacher", "Social Worker"]
+                motivation = f"{fav} is your favourite. Focus on top subjects for Social Science careers."
+
+        elif fav == "Chemistry":
+            if "Physics" in top_subjects:
+                field = "Chemical / Mechanical Engineering"
+                careers = ["Chemical Engineer", "Mechanical Engineer", "Materials Scientist"]
+                motivation = f"{fav} + Physics suits Engineering & Research."
+            elif "Biology" in top_subjects:
+                field = "Medical / Pharma Research"
+                careers = ["Pharmacist", "Medical Researcher", "Biotechnologist"]
+                motivation = f"{fav} + Biology is great for Medicine & Pharma Research."
+            else:
+                field = "Chemistry & Science"
+                careers = ["Lab Technician", "Research Scientist", "Chemist"]
+                motivation = f"{fav} is your favourite. Many scientific careers await!"
+
+        elif fav == "Islamiat":
+            if "English" in top_subjects:
+                field = "Education / Social Studies"
+                careers = ["Teacher", "Researcher", "Social Worker"]
+                motivation = f"{fav} + English gives opportunities in Education & Social Studies."
+            else:
+                field = "Religious Studies"
+                careers = ["Teacher", "Researcher", "Counselor"]
+                motivation = f"{fav} is your favourite. Focus on top subjects for Religious Studies."
+
+        # ---------------- Compare with previous percentage ----------------
+        current_percentage = int(sum(valid_marks.values()) / len(valid_marks)) if valid_marks else 0
+
+        if current_percentage >= student["previous_percentage"]:
+            student["motivation"] = f"Great job! Your score improved from {student['previous_percentage']}% to {current_percentage}% 🎉"
+        else:
+            student["motivation"] = f"Your score decreased from {student['previous_percentage']}% to {current_percentage}%. {motivation}"
+
+        student["field"] = field
+        student["careers"] = careers
+
+        return render(request, "myapp/suggestionresult.html", {"student": student})
+
+
+
+
+
+
+
+
 
 
 
