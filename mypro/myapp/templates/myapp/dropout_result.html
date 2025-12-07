@@ -8,7 +8,7 @@
           
           <!-- Result Card -->
           <div style="background: linear-gradient(135deg, rgba(22,34,57,0.95) 0%, rgba(12,18,40,0.98) 100%); padding: 60px; border-radius: 10px; box-shadow: 0px 10px 50px rgba(0,0,0,0.5); border: 1px solid rgba(245,164,37,0.1); position: relative; overflow: hidden;">
-            
+
             <!-- Decorative Elements -->
             <div style="position: absolute; top: -50px; right: -50px; width: 200px; height: 200px; background: radial-gradient(circle, rgba(245,164,37,0.1) 0%, transparent 70%); border-radius: 50%;"></div>
             <div style="position: absolute; bottom: -30px; left: -30px; width: 150px; height: 150px; background: radial-gradient(circle, rgba(245,164,37,0.08) 0%, transparent 70%); border-radius: 50%;"></div>
@@ -35,7 +35,7 @@
               <div style="font-size: 72px; font-weight: 800; color: #f5a425; margin-bottom: 20px; text-shadow: 0 0 30px rgba(245,164,37,0.5);">
                 {{ probability }}%
               </div>
-              
+
               {% if prediction == 1 %}
                 <div style="display: inline-block; background: linear-gradient(135deg, rgba(255,99,132,0.2) 0%, rgba(255,99,132,0.1) 100%); padding: 15px 40px; border-radius: 50px; border: 2px solid rgba(255,99,132,0.5);">
                   <i class="fa fa-exclamation-triangle" style="margin-right: 10px; color: #ff6384;"></i>
@@ -56,7 +56,7 @@
                   <h4 style="color: #ff6384; font-size: 18px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 25px;">
                     <i class="fa fa-warning" style="margin-right: 10px;"></i>Risk Factors Identified
                   </h4>
-                  
+
                   {% if reasons %}
                     <ul style="list-style: none; padding: 0; margin: 0;">
                       {% for r in reasons %}
@@ -81,7 +81,7 @@
                   <h4 style="color: #4bc0c0; font-size: 18px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 25px;">
                     <i class="fa fa-lightbulb-o" style="margin-right: 10px;"></i>Improvement Suggestions
                   </h4>
-                  
+
                   {% if suggestions %}
                     <ul style="list-style: none; padding: 0; margin: 0;">
                       {% for s in suggestions %}
@@ -106,7 +106,7 @@
               <h4 style="color: #f5a425; font-size: 18px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 30px; text-align: center;">
                 <i class="fa fa-bar-chart" style="margin-right: 10px;"></i>Risk Factor Analysis Chart
               </h4>
-              
+
               <div style="background: rgba(250,250,250,0.03); padding: 30px; border-radius: 8px;">
                 <canvas id="riskChart" style="max-height: 400px;"></canvas>
               </div>
@@ -205,8 +205,8 @@
                 }
             },
             scales: {
-                y: { 
-                    beginAtZero: true, 
+                y: {
+                    beginAtZero: true,
                     max: 1,
                     grid: {
                         color: 'rgba(250,250,250,0.05)',

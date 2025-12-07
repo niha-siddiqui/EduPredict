@@ -7,8 +7,8 @@
         <div class="col-lg-10 col-md-11">
           
           <!-- Result Card -->
-          <div style="background: linear-gradient(135deg, rgba(22,34,57,0.95) 0%, rgba(12,18,40,0.98) 100%); padding: 60px; border-radius: 10px; box-shadow: 0px 10px 50px rgba(0,0,0,0.5); border: 1px solid rgba(245,164,37,0.1); position: relative; overflow: hidden;">
-            
+          <div id="progressCard" style="background: linear-gradient(135deg, rgba(22,34,57,0.95) 0%, rgba(12,18,40,0.98) 100%); padding: 60px; border-radius: 10px; box-shadow: 0px 10px 50px rgba(0,0,0,0.5); border: 1px solid rgba(245,164,37,0.1); position: relative; overflow: hidden;">
+
             <!-- Decorative Elements -->
             <div style="position: absolute; top: -50px; right: -50px; width: 200px; height: 200px; background: radial-gradient(circle, rgba(245,164,37,0.1) 0%, transparent 70%); border-radius: 50%;"></div>
             <div style="position: absolute; bottom: -30px; left: -30px; width: 150px; height: 150px; background: radial-gradient(circle, rgba(245,164,37,0.08) 0%, transparent 70%); border-radius: 50%;"></div>
@@ -32,7 +32,7 @@
               <h3 style="color: rgba(255,255,255,0.8); font-size: 16px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 25px; text-align: center;">
                 <i class="fa fa-percent" style="color: #f5a425; margin-right: 10px;"></i>Overall Progress Score
               </h3>
-              
+
               <!-- Progress Number -->
               <div style="text-align: center; font-size: 72px; font-weight: 800; color: #f5a425; margin-bottom: 25px; text-shadow: 0 0 30px rgba(245,164,37,0.5);">
                 {{ progress }}%
@@ -68,7 +68,7 @@
               <h3 style="color: #4bc0c0; font-size: 20px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 25px;">
                 <i class="fa fa-file-text" style="margin-right: 10px;"></i>Progress Summary
               </h3>
-              
+
               <div style="background: rgba(250,250,250,0.02); padding: 30px; border-radius: 8px; border: 1px solid rgba(250,250,250,0.05);">
                 <p style="color: rgba(255,255,255,0.85); font-size: 15px; line-height: 32px; margin: 0; text-align: justify; letter-spacing: 0.3px;">
                   {{ paragraph }}
@@ -81,127 +81,49 @@
               <div style="margin-bottom: 20px;">
                 <i class="fa fa-quote-left" style="font-size: 32px; color: rgba(245,164,37,0.4);"></i>
               </div>
-              
+
               <h3 style="color: #f5a425; font-size: 18px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 25px;">
                 <i class="fa fa-lightbulb-o" style="margin-right: 10px;"></i>Words of Encouragement
               </h3>
-              
+
               <p style="color: rgba(255,255,255,0.9); font-size: 18px; line-height: 34px; margin: 0; font-style: italic; font-weight: 500; letter-spacing: 0.5px;">
                 "{{ quote }}"
               </p>
-              
+
               <div style="margin-top: 20px;">
                 <i class="fa fa-quote-right" style="font-size: 32px; color: rgba(245,164,37,0.4);"></i>
               </div>
             </div>
 
-            <!-- Trait Scores Chart Section -->
-            <div style="background: rgba(245,164,37,0.03); padding: 40px; border-radius: 8px; margin-bottom: 40px; border-left: 4px solid #f5a425; position: relative; z-index: 1;">
-              <h3 style="color: #f5a425; font-size: 20px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 30px; text-align: center;">
-                <i class="fa fa-bar-chart" style="margin-right: 10px;"></i>Trait Analysis Breakdown
-              </h3>
-              
-              <div style="background: rgba(250,250,250,0.03); padding: 30px; border-radius: 8px;">
-                <canvas id="traitChart" style="max-height: 400px;"></canvas>
-              </div>
-            </div>
+            <!-- Download PDF Button -->
+            <div style="text-align:center; margin-bottom: 30px;">
+<button onclick="downloadPDF()" class="btn btn-warning">Download PDF</button>
 
-            <!-- Trait Details Grid -->
-            <div class="row" style="position: relative; z-index: 1; margin-bottom: 30px;">
-              <div class="col-md-6" style="margin-bottom: 20px;">
-                <div style="background: rgba(30,144,255,0.08); padding: 25px; border-radius: 8px; border-left: 4px solid #1E90FF; height: 100%;">
-                  <h4 style="color: #1E90FF; font-size: 16px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 15px;">
-                    <i class="fa fa-bullseye" style="margin-right: 10px;"></i>Focus Level
-                  </h4>
-                  <p style="color: rgba(255,255,255,0.75); font-size: 14px; line-height: 24px; margin: 0;">
-                    Your concentration and attention management during study sessions.
-                  </p>
-                </div>
-              </div>
 
-              <div class="col-md-6" style="margin-bottom: 20px;">
-                <div style="background: rgba(0,191,255,0.08); padding: 25px; border-radius: 8px; border-left: 4px solid #00BFFF; height: 100%;">
-                  <h4 style="color: #00BFFF; font-size: 16px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 15px;">
-                    <i class="fa fa-book" style="margin-right: 10px;"></i>Study Method
-                  </h4>
-                  <p style="color: rgba(255,255,255,0.75); font-size: 14px; line-height: 24px; margin: 0;">
-                    Effectiveness of your learning strategies and revision techniques.
-                  </p>
-                </div>
-              </div>
-
-              <div class="col-md-6" style="margin-bottom: 20px;">
-                <div style="background: rgba(135,206,250,0.08); padding: 25px; border-radius: 8px; border-left: 4px solid #87CEFA; height: 100%;">
-                  <h4 style="color: #87CEFA; font-size: 16px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 15px;">
-                    <i class="fa fa-puzzle-piece" style="margin-right: 10px;"></i>Problem Solving
-                  </h4>
-                  <p style="color: rgba(255,255,255,0.75); font-size: 14px; line-height: 24px; margin: 0;">
-                    Your approach to tackling challenging academic problems.
-                  </p>
-                </div>
-              </div>
-
-              <div class="col-md-6" style="margin-bottom: 20px;">
-                <div style="background: rgba(70,130,180,0.08); padding: 25px; border-radius: 8px; border-left: 4px solid #4682B4; height: 100%;">
-                  <h4 style="color: #4682B4; font-size: 16px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 15px;">
-                    <i class="fa fa-rocket" style="margin-right: 10px;"></i>Motivation
-                  </h4>
-                  <p style="color: rgba(255,255,255,0.75); font-size: 14px; line-height: 24px; margin: 0;">
-                    Your drive and enthusiasm towards academic achievements.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <!-- Action Buttons -->
-            <div style="text-align: center; margin-top: 45px; position: relative; z-index: 1;">
-              <a href="{% url 'student_progress_survey' %}" style="display: inline-block; background: linear-gradient(135deg, #f5a425 0%, #ff8800 100%); color: #fff; font-size: 15px; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 700; padding: 20px 50px; border: none; outline: none; text-decoration: none; transition: all 0.4s; border-radius: 50px; box-shadow: 0px 8px 30px rgba(245,164,37,0.4); margin: 0 10px 10px 10px;">
-                <i class="fa fa-refresh" style="margin-right: 12px;"></i>Take Survey Again
-              </a>
-              <a href="/" style="display: inline-block; background: transparent; color: #f5a425; font-size: 15px; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 700; padding: 20px 50px; border: 2px solid #f5a425; outline: none; text-decoration: none; transition: all 0.4s; border-radius: 50px; margin: 0 10px 10px 10px;">
-                <i class="fa fa-home" style="margin-right: 12px;"></i>Back to Home
-              </a>
-            </div>
-
-            <!-- Info Note -->
-            <div style="margin-top: 45px; padding: 25px 30px; background: linear-gradient(135deg, rgba(245,164,37,0.08) 0%, rgba(245,164,37,0.03) 100%); border-left: 4px solid #f5a425; border-radius: 8px; position: relative; z-index: 1;">
-              <div style="display: flex; align-items: flex-start;">
-                <i class="fa fa-info-circle" style="color: #f5a425; font-size: 24px; margin-right: 18px; margin-top: 3px;"></i>
-                <div>
-                  <h5 style="color: #f5a425; font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 10px;">
-                    Understanding Your Results
-                  </h5>
-                  <p style="color: rgba(255,255,255,0.75); font-size: 13px; line-height: 24px; margin: 0;">
-                    This progress analysis evaluates your academic traits across four key dimensions. Use these insights to identify areas of strength and opportunities for improvement in your learning journey.
-                  </p>
-                </div>
-              </div>
             </div>
 
           </div>
-
         </div>
       </div>
     </div>
   </section>
 
+  <!-- Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script>
-    // Animate progress bar on load with smooth animation
+    // Animate progress bar
     window.addEventListener('load', function() {
       const progressBar = document.getElementById('progressBar');
       const progressText = progressBar.querySelector('span');
       const targetWidth = {{ progress }};
-      
       setTimeout(function() {
         progressBar.style.width = targetWidth + '%';
-        if (progressText) {
-          progressText.style.opacity = '1';
-        }
+        if (progressText) progressText.style.opacity = '1';
       }, 100);
     });
 
-    // Bar chart for traits
+    // Bar chart
     const ctx = document.getElementById('traitChart').getContext('2d');
     const traitChart = new Chart(ctx, {
         type: 'bar',
@@ -236,9 +158,7 @@
             responsive: true,
             maintainAspectRatio: true,
             plugins: {
-                legend: { 
-                    display: false 
-                },
+                legend: { display: false },
                 tooltip: {
                     backgroundColor: 'rgba(22,34,57,0.95)',
                     titleColor: '#f5a425',
@@ -247,111 +167,38 @@
                     borderWidth: 1,
                     padding: 12,
                     displayColors: true,
-                    callbacks: {
-                        label: function(context) {
-                            return 'Score: ' + context.parsed.y + '/3';
-                        }
-                    }
+                    callbacks: { label: function(context) { return 'Score: ' + context.parsed.y + '/3'; } }
                 }
             },
             scales: {
-                y: { 
-                    beginAtZero: true, 
-                    max: 3,
-                    grid: {
-                        color: 'rgba(250,250,250,0.05)',
-                        borderColor: 'rgba(250,250,250,0.1)'
-                    },
-                    ticks: {
-                        color: 'rgba(255,255,255,0.7)',
-                        font: {
-                            size: 12
-                        },
-                        stepSize: 1
-                    }
-                },
-                x: {
-                    grid: {
-                        display: false,
-                        borderColor: 'rgba(250,250,250,0.1)'
-                    },
-                    ticks: {
-                        color: 'rgba(255,255,255,0.7)',
-                        font: {
-                            size: 12
-                        }
-                    }
-                }
+                y: { beginAtZero: true, max: 3, grid: { color: 'rgba(250,250,250,0.05)', borderColor: 'rgba(250,250,250,0.1)' }, ticks: { color: 'rgba(255,255,255,0.7)', stepSize: 1 } },
+                x: { grid: { display: false, borderColor: 'rgba(250,250,250,0.1)' }, ticks: { color: 'rgba(255,255,255,0.7)' } }
             }
         }
     });
+
+function downloadPDF() {
+    const report = document.getElementById("progressCard");
+
+    html2canvas(report, { scale: 2 }).then((canvas) => {
+        const imgData = canvas.toDataURL("image/png");
+        const pdf = new jspdf.jsPDF("p", "mm", "a4");
+
+        const width = pdf.internal.pageSize.getWidth();
+        const height = (canvas.height * width) / canvas.width;
+
+        pdf.addImage(imgData, "PNG", 0, 0, width, height);
+        pdf.save("Student_Progress_Report.pdf");
+    });
+}
+
+
+
+
+
   </script>
 
-  <style>
-    /* Button hover effects */
-    a[href*="student_progress_survey"]:hover,
-    a[href="/"]:hover {
-      transform: translateY(-3px);
-      box-shadow: 0px 12px 40px rgba(245,164,37,0.6);
-    }
 
-    a[href*="student_progress_survey"]:active,
-    a[href="/"]:active {
-      transform: translateY(-1px);
-    }
-
-    a[href="/"]:hover {
-      background: rgba(245,164,37,0.1);
-    }
-
-    /* Mobile Responsiveness */
-    @media screen and (max-width: 767px) {
-      section.features > div > div > div > div {
-        padding: 40px 25px !important;
-      }
-
-      h2 {
-        font-size: 28px !important;
-      }
-
-      div[style*="font-size: 72px"] {
-        font-size: 56px !important;
-      }
-
-      .col-md-6 {
-        margin-bottom: 20px !important;
-      }
-
-      a[href*="student_progress_survey"],
-      a[href="/"] {
-        display: block !important;
-        margin: 10px 0 !important;
-        padding: 16px 40px !important;
-      }
-
-      canvas {
-        max-height: 300px !important;
-      }
-    }
-
-    @media screen and (max-width: 480px) {
-      h2 {
-        font-size: 24px !important;
-      }
-
-      div[style*="font-size: 72px"] {
-        font-size: 48px !important;
-      }
-
-      section.features > div > div > div > div > div:first-child > div:first-child {
-        width: 75px !important;
-        height: 75px !important;
-      }
-
-      section.features > div > div > div > div > div:first-child > div:first-child i {
-        font-size: 32px !important;
-      }
-    }
-  </style>
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 {% endblock %}

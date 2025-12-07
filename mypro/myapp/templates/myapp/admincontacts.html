@@ -62,7 +62,7 @@
         <div class="logo"><i class="fas fa-graduation-cap"></i> Admin Panel</div>
         <a href="{% url 'admin_dashboard' %}"><i class="fas fa-chart-line"></i> Dashboard</a>
         <a href="{% url 'admin_users' %}"><i class="fas fa-users"></i> Registered Users</a>
-         <a href="{% url 'admin_performance' %}"><i class="fas fa-chart-pie"></i> Student Performance</a>
+        <a href="{% url 'admin_performance' %}"><i class="fas fa-chart-pie"></i> Student Performance</a>
         <a href="{% url 'admin_surveys' %}"><i class="fas fa-clipboard-list"></i> Surveys</a>
         <a href="{% url 'admin_progress' %}"><i class="fas fa-chart-bar"></i> Progress Surveys</a>
         <a href="{% url 'admin_dropout' %}"><i class="fas fa-user-times"></i> Dropout Records</a>
@@ -96,8 +96,8 @@
                             <th>#</th>
                             <th>Name</th>
                             <th>Email</th>
-
-
+                            <th>Phone</th>
+                            <th>Subject</th>
                             <th>Message</th>
                             <th>Date</th>
                             <th>Actions</th>
@@ -108,15 +108,15 @@
                         <tr>
                             <td>{{ forloop.counter }}</td>
                             <td>{{ contact.name }}</td>
-                            <td>{{ contact.Email }}</td>
-
-
+                            <td>{{ contact.email }}</td>
+                            <td>{{ contact.phone|default:"-" }}</td>
+                            <td>{{ contact.subject|default:"-" }}</td>
                             <td>
                                 <div class="message-preview" title="{{ contact.message }}">
-                                    {{ contact.Massage }}
+                                    {{ contact.message }}
                                 </div>
                             </td>
-                            <td>{{ contact.Record_at|date:"M d, Y" }}</td>
+                            <td>{{ contact.created_at|date:"M d, Y H:i" }}</td>
                             <td>
                                 <button class="btn btn-info btn-sm" data-bs-toggle="modal"
                                         data-bs-target="#messageModal{{ contact.id }}">
@@ -139,7 +139,7 @@
         </div>
     </div>
 
-    <!-- Modals (Outside tbody) -->
+    <!-- Modals -->
     {% for contact in contacts %}
     <div class="modal fade" id="messageModal{{ contact.id }}" tabindex="-1">
         <div class="modal-dialog modal-lg">
@@ -149,14 +149,14 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <p><strong>Email:</strong> {{ contact.Email }}</p>
-
-
+                    <p><strong>Email:</strong> {{ contact.email }}</p>
+                    <p><strong>Phone:</strong> {{ contact.phone|default:"-" }}</p>
+                    <p><strong>Subject:</strong> {{ contact.subject|default:"-" }}</p>
                     <hr>
                     <p><strong>Message:</strong></p>
-                    <p>{{ contact.Message }}</p>
+                    <p>{{ contact.message }}</p>
                     <hr>
-                    <p class="text-muted"><small>Received on: {{ contact.Record_at|date:"M d, Y H:i" }}</small></p>
+                    <p class="text-muted"><small>Received on: {{ contact.created_at|date:"M d, Y H:i" }}</small></p>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>

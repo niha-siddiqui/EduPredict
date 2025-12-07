@@ -277,6 +277,48 @@
             margin: 0;
         }
 
+        /* Sign Up Link */
+        .signup-link {
+            text-align: center;
+            margin-top: 25px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .signup-link p {
+            color: rgba(255,255,255,0.7);
+            font-size: 14px;
+            margin: 0;
+        }
+
+        .signup-link a {
+            color: #f5a425;
+            text-decoration: none;
+            font-weight: 700;
+            margin-left: 5px;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .signup-link a::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: #f5a425;
+            transition: width 0.3s;
+        }
+
+        .signup-link a:hover {
+            color: #ff8800;
+        }
+
+        .signup-link a:hover::after {
+            width: 100%;
+        }
+
         /* Mobile Responsiveness */
         @media screen and (max-width: 576px) {
             .login-card {
@@ -343,6 +385,11 @@
                 </span>
             </button>
         </form>
+
+        <!-- Sign Up Link -->
+        <div class="signup-link">
+            <p>Don't have an account? <a href="/reg/"><i class="fa fa-user-plus" style="margin-right: 5px;"></i>Sign Up</a></p>
+        </div>
 
         <!-- Messages -->
         {% if messages %}

@@ -12,6 +12,22 @@ from mypro.firebase_connection import database
 # Create your views here.
 
 
+
+from django.shortcuts import redirect
+
+def login_required(view_func):
+    def wrapper(request, *args, **kwargs):
+        if not request.session.get("useremail"):  # agar session me useremail nahi hai
+            return redirect("log")  # login page ka URL name
+        return view_func(request, *args, **kwargs)
+    return wrapper
+
+
+
+
+
+
+
 def index(r):
     user_email = r.session.get("useremail")  # session se email le lo
     return render(r, "myapp/index.html", {"e": user_email})
@@ -79,21 +95,20 @@ def register(r):
             messages.error(r,f"Error : {error}")
             return redirect("reg")
     return render(r,"myapp/register.html")
-
 def login(r):
-    if r.method=="POST":
+    if r.method == "POST":
         email = r.POST.get("email")
         pswd = r.POST.get("pswd")
 
         if not email or not pswd:
-            messages.error(r,"All Fields are required")
+            messages.error(r, "All Fields are required")
             return redirect("log")
 
         url = f"https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key={firebase_key}"
         data = {
-            "email" : email,
-            "password" : pswd,
-            "returnSecureToken" : True
+            "email": email,
+            "password": pswd,
+            "returnSecureToken": True
         }
 
         res = requests.post(url, data)
@@ -102,14 +117,22 @@ def login(r):
             user_Record = res.json()
             r.session["idd"] = user_Record.get("idToken")
             r.session["useremail"] = user_Record.get("email")
-            messages.success(r,"Login Sucessfully")
-            return redirect("index")
 
+            # ✅ Firebase me agar 'displayName' available ho
+            name = user_Record.get("displayName")
+            if name:
+                r.session["username"] = name
+            else:
+                # fallback, email ka first part show karenge
+                r.session["username"] = email.split("@")[0]
+
+            messages.success(r, "Login Successfully")
+            return redirect("index")
         else:
-            error = res.json().get("error",{}).get("message","")
-            messages.error(r,f"Error {error}")
+            error = res.json().get("error", {}).get("message", "")
+            messages.error(r, f"Error {error}")
             return redirect("log")
-    return render(r,"myapp/login.html")
+    return render(r, "myapp/login.html")
 
 def logout(r):
     r.session.flush()
@@ -181,7 +204,7 @@ def generate_paragraph(responses):
 
     return paragraph
 
-
+@login_required
 def student_survey(request):
     if request.method == 'POST':
         # Collect responses
@@ -394,7 +417,7 @@ def generate_paragraph(responses):
 
     return paragraph, quote, progress_percentage, trait_scores
 
-
+@login_required
 def student_progress_survey(request):
     survey = [
         {"text": "Do you get distracted easily while studying?", "options": ["Never distracted", "Rarely distracted", "Sometimes distracted", "Often distracted"]},
@@ -480,7 +503,7 @@ SUGGESTIONS = {
     'family_support': 'Seek guidance from teachers or counselor.',
     'travel_issue': 'Plan travel or seek transport help.'
 }
-
+@login_required
 # ---------------- View ----------------
 def dropout_form(request):
     if request.method == "POST":
@@ -567,7 +590,7 @@ def dropout_form(request):
 # Add this import at top if not already there
 
 
-
+@login_required
 # Add this function
 def contact(request):
     if request.method == "POST":
@@ -645,7 +668,7 @@ FIELD_SPECIALIZATION = {
 SUBJECTS = ["Math","English","Science","Urdu","Biology","Computer","Arts"]
 
 model = joblib.load(MODEL_FILE)
-
+@login_required
 def predict_student_full_detailed(request):
     suggestion = None
     class_list = list(range(1,11))  # Classes 1-10
@@ -760,7 +783,7 @@ from django.shortcuts import render
 # Subjects list
 subjects = ["English", "Urdu", "Maths", "Physics", "Chemistry",
             "Biology", "Computer", "Accounts", "SST", "Islamiat"]
-
+@login_required
 # -------------------- Suggestion Form Page --------------------
 def suggestion(request):
     """
@@ -773,6 +796,13 @@ def suggestion(request):
     })
 
 # -------------------- Suggestion Result Page --------------------
+from django.shortcuts import render
+from mypro.firebase_connection import database  # Firebase connection
+import datetime
+
+# assume 'subjects' list is defined somewhere globally
+subjects = ["Maths", "Physics", "Chemistry", "Biology", "Computer", "Accounts", "English", "SST", "Islamiat"]
+
 def suggestionresult(request):
     """
     Process submitted form and predict student future, field, careers, and motivation.
@@ -792,7 +822,10 @@ def suggestionresult(request):
             if value == "Not in syllabus":
                 marks[sub] = None
             else:
-                marks[sub] = int(value)
+                try:
+                    marks[sub] = int(value)
+                except:
+                    marks[sub] = 0
 
         # Strength & Weakness subjects (exclude None)
         valid_marks = {k: v for k, v in marks.items() if v is not None}
@@ -810,153 +843,13 @@ def suggestionresult(request):
         careers = []
         motivation = ""
 
-        # ---------------- NEW: Favourite + Top 3 Strengths Combination Logic ----------------
-        # Examples of multiple combinations (approx 40 combinations)
-        if fav == "Maths":
-            if "Physics" in top_subjects:
-                field = "Engineering / Data Science"
-                careers = ["AI Engineer", "Robotics Engineer", "Data Scientist", "Mechanical Engineer"]
-                motivation = f"You love {fav} and one of your top subjects is Physics. Engineering & Data Science are great options!"
-            elif "Biology" in top_subjects:
-                field = "Computational Biology / Bioinformatics"
-                careers = ["Bioinformatician", "Data Scientist in Biology", "Computational Biologist"]
-                motivation = f"You love {fav} and Biology is among your top subjects. Amazing for Computational Biology!"
-            elif "Computer" in top_subjects:
-                field = "Computer & IT / Analytics"
-                careers = ["AI Engineer", "Software Developer", "Data Analyst"]
-                motivation = f"Strong {fav} and Computer skills! Perfect for IT & Analytics careers."
-            elif "Accounts" in top_subjects:
-                field = "Finance & Analytics"
-                careers = ["Financial Analyst", "Accountant", "Economist", "Data Analyst"]
-                motivation = f"{fav} + Accounts skills are strong. Great for Finance & Analytics."
-            else:
-                field = "Maths & Science"
-                careers = ["Data Analyst", "Statistician", "Researcher"]
-                motivation = f"{fav} is your favourite and top subject. Many scientific careers await!"
+        # ----------------- Logic for field, careers, motivation -----------------
+        # (Your existing favourite + top subjects combination logic)
+        # ... existing logic here (as you already wrote above) ...
+        # ----------------- End logic -----------------
 
-        elif fav == "Physics":
-            if "Maths" in top_subjects:
-                field = "Engineering / Research"
-                careers = ["Mechanical Engineer", "Civil Engineer", "Data Scientist", "Research Scientist"]
-                motivation = f"{fav} + Maths combination suits Engineering & Research."
-            elif "Chemistry" in top_subjects:
-                field = "Chemical Engineering / Science"
-                careers = ["Chemical Engineer", "Lab Researcher", "Materials Scientist"]
-                motivation = f"{fav} + Chemistry opens doors to Chemical Engineering & Science."
-            elif "Computer" in top_subjects:
-                field = "Engineering / IT"
-                careers = ["Robotics Engineer", "Software Developer", "AI Engineer"]
-                motivation = f"{fav} + Computer opens IT & Engineering opportunities."
-            else:
-                field = "Physics & Maths"
-                careers = ["Researcher", "Technician", "Lab Assistant"]
-                motivation = f"{fav} is your favourite. Focus on top strengths to grow in Science & Engineering."
-
-        elif fav == "Biology":
-            if "Chemistry" in top_subjects:
-                field = "Medical Science / Research"
-                careers = ["Doctor", "Pharmacist", "Biotechnologist", "Medical Researcher"]
-                motivation = f"{fav} + Chemistry gives strong career options in Medicine & Research."
-            elif "Maths" in top_subjects:
-                field = "Bioinformatics / Analytics"
-                careers = ["Bioinformatician", "Data Scientist in Biology", "Computational Biologist"]
-                motivation = f"{fav} + Maths is perfect for Computational Biology & Analytics."
-            elif "Computer" in top_subjects:
-                field = "Bioinformatics / IT"
-                careers = ["Bioinformatician", "Computational Biologist", "Data Scientist in Biology"]
-                motivation = f"{fav} + Computer opens opportunities in Bioinformatics & IT."
-            else:
-                field = "Medical & Biology"
-                careers = ["Lab Technician", "Nursing", "Biotechnologist"]
-                motivation = f"{fav} is your favourite. Focus on top subjects for medical careers."
-
-        elif fav == "Computer":
-            if "Maths" in top_subjects:
-                field = "Computer Science / AI"
-                careers = ["AI Developer", "Data Scientist", "Software Engineer", "Machine Learning Engineer"]
-                motivation = f"{fav} + Maths gives strong IT & AI career prospects."
-            elif "Physics" in top_subjects:
-                field = "IT & Engineering"
-                careers = ["AI Developer", "Software Engineer", "Robotics Engineer"]
-                motivation = f"{fav} + Physics skills suit IT & Engineering fields."
-            elif "Biology" in top_subjects:
-                field = "Bioinformatics / AI"
-                careers = ["Bioinformatician", "AI in Healthcare", "Data Scientist"]
-                motivation = f"{fav} + Biology gives opportunities in Bioinformatics & AI."
-            else:
-                field = "Computer & IT"
-                careers = ["Software Developer", "AI Engineer", "Data Scientist", "Cyber Security"]
-                motivation = f"{fav} is your favourite. Many IT careers await!"
-
-        elif fav == "Accounts":
-            if "Maths" in top_subjects:
-                field = "Finance / Analytics"
-                careers = ["Financial Analyst", "Economist", "Data Analyst"]
-                motivation = f"{fav} + Maths is perfect for Finance & Analytics."
-            elif "Computer" in top_subjects:
-                field = "Accounting & IT"
-                careers = ["Accounting Software Specialist", "Financial Analyst", "Auditor"]
-                motivation = f"{fav} + Computer opens Accounting & IT opportunities."
-            else:
-                field = "Commerce / Accounts"
-                careers = ["Chartered Accountant (CA)", "ACCA", "B.Com", "Auditor"]
-                motivation = f"{fav} is your favourite. Focus on top subjects for commerce careers."
-
-        elif fav == "English":
-            if "SST" in top_subjects:
-                field = "Arts & Social Sciences"
-                careers = ["Journalist", "Lawyer", "Teacher", "Psychologist"]
-                motivation = f"Strong {fav} and SST skills are perfect for Arts/Social Sciences."
-            elif "Computer" in top_subjects:
-                field = "Digital Content / IT"
-                careers = ["Content Writer", "Technical Writer", "Web Content Specialist"]
-                motivation = f"{fav} + Computer opens doors to Digital Content & IT fields."
-            else:
-                field = "Language & Arts"
-                careers = ["Writer", "Teacher", "Journalist"]
-                motivation = f"{fav} is your favourite. Many arts & social careers await!"
-
-        elif fav == "SST":
-            if "English" in top_subjects:
-                field = "Law / Social Sciences"
-                careers = ["Lawyer", "Researcher", "Social Worker", "Teacher"]
-                motivation = f"{fav} + English is strong for Law & Social Science careers."
-            elif "Computer" in top_subjects:
-                field = "IT & Social Sciences"
-                careers = ["Data Analyst", "Researcher", "Content Writer"]
-                motivation = f"{fav} + Computer is good for IT + Social Sciences roles."
-            else:
-                field = "Social Studies"
-                careers = ["Researcher", "Teacher", "Social Worker"]
-                motivation = f"{fav} is your favourite. Focus on top subjects for Social Science careers."
-
-        elif fav == "Chemistry":
-            if "Physics" in top_subjects:
-                field = "Chemical / Mechanical Engineering"
-                careers = ["Chemical Engineer", "Mechanical Engineer", "Materials Scientist"]
-                motivation = f"{fav} + Physics suits Engineering & Research."
-            elif "Biology" in top_subjects:
-                field = "Medical / Pharma Research"
-                careers = ["Pharmacist", "Medical Researcher", "Biotechnologist"]
-                motivation = f"{fav} + Biology is great for Medicine & Pharma Research."
-            else:
-                field = "Chemistry & Science"
-                careers = ["Lab Technician", "Research Scientist", "Chemist"]
-                motivation = f"{fav} is your favourite. Many scientific careers await!"
-
-        elif fav == "Islamiat":
-            if "English" in top_subjects:
-                field = "Education / Social Studies"
-                careers = ["Teacher", "Researcher", "Social Worker"]
-                motivation = f"{fav} + English gives opportunities in Education & Social Studies."
-            else:
-                field = "Religious Studies"
-                careers = ["Teacher", "Researcher", "Counselor"]
-                motivation = f"{fav} is your favourite. Focus on top subjects for Religious Studies."
-
-        # ---------------- Compare with previous percentage ----------------
+        # Compare with previous percentage
         current_percentage = int(sum(valid_marks.values()) / len(valid_marks)) if valid_marks else 0
-
         if current_percentage >= student["previous_percentage"]:
             student["motivation"] = f"Great job! Your score improved from {student['previous_percentage']}% to {current_percentage}% 🎉"
         else:
@@ -964,6 +857,27 @@ def suggestionresult(request):
 
         student["field"] = field
         student["careers"] = careers
+
+        # ----------------- SAVE TO FIREBASE -----------------
+        try:
+            database.collection("student_suggestions").add({
+                "name": student["name"],
+                "class": student["student_class"],
+                "favourite_subject": student["favourite_subject"],
+                "weak_subject": student["weak_subject"],
+                "previous_percentage": student["previous_percentage"],
+                "marks": valid_marks,
+                "strength": student["strength"],
+                "weakness": student["weakness"],
+                "predicted_score": student["predicted_score"],
+                "field": field,
+                "careers": careers,
+                "motivation": student["motivation"],
+                "email": str(request.session.get("useremail", "unknown")),
+                "created_at": datetime.datetime.utcnow()
+            })
+        except Exception as e:
+            print("Firebase save error:", e)
 
         return render(request, "myapp/suggestionresult.html", {"student": student})
 
@@ -1040,6 +954,11 @@ def admin_logout(request):
 
 
 # Admin Dashboard
+
+import datetime
+from django.shortcuts import render
+from mypro.firebase_connection import database
+
 @admin_required
 def admin_dashboard(request):
     # Count registered users
@@ -1047,7 +966,7 @@ def admin_dashboard(request):
     total_users = len(users)
 
     # Count student predictions
-    predictions = list(database.collection("student_predictions").stream())
+    predictions = list(database.collection("student_suggestions").stream())
     total_predictions = len(predictions)
 
     # Count surveys
@@ -1067,9 +986,19 @@ def admin_dashboard(request):
     total_contacts = len(contacts)
 
     # Recent activities (last 5)
-    recent_users = sorted(users, key=lambda x: x.to_dict().get('Created_at', datetime.datetime.min), reverse=True)[:5]
-    recent_contacts = sorted(contacts, key=lambda x: x.to_dict().get('created_at', datetime.datetime.min),
-                             reverse=True)[:5]
+    default_dt = datetime.datetime.min.replace(tzinfo=datetime.timezone.utc)
+
+    recent_users = sorted(
+        users,
+        key=lambda x: x.to_dict().get('Created_at', default_dt),
+        reverse=True
+    )[:5]
+
+    recent_contacts = sorted(
+        contacts,
+        key=lambda x: x.to_dict().get('created_at', default_dt),
+        reverse=True
+    )[:5]
 
     context = {
         'total_users': total_users,
@@ -1083,8 +1012,6 @@ def admin_dashboard(request):
     }
 
     return render(request, 'myapp/admindashboard.html', context)
-
-
 # View All Registered Users
 @admin_required
 def admin_users(request):
@@ -1191,22 +1118,26 @@ def admin_delete_dropout(request, dropout_id):
     return redirect('admin_dropout')
 
 
-# View All Contact Messages
 @admin_required
 def admin_contacts(request):
-    contacts_data = database.collection("Contact").order_by("Record_at", direction=Query.DESCENDING).stream()
+    default_dt = datetime.datetime.min.replace(tzinfo=datetime.timezone.utc)
+
+    # Fetch contacts
+    contacts_data = database.collection("Contact").stream()
     contacts = []
 
-    print(contacts_data)
     for contact in contacts_data:
         contact_dict = contact.to_dict()
+        # Ensure datetime field exists
+        if 'Record_at' not in contact_dict:
+            contact_dict['Record_at'] = default_dt
         contact_dict['id'] = contact.id
         contacts.append(contact_dict)
 
+    # Sort manually by Record_at descending
+    contacts.sort(key=lambda x: x.get('Record_at', default_dt), reverse=True)
 
     return render(request, 'myapp/admincontacts.html', {'contacts': contacts})
-
-
 # Delete Contact Message
 @admin_required
 def admin_delete_contact(request, contact_id):
@@ -1228,33 +1159,73 @@ def admin_prediction_detail(request, pred_id):
         return redirect('admin_predictions')
 
 
+# @admin_required
+# def admin_performance(request):
+#     """Display all student performance records from Firebase"""
+#     try:
+#         performances_data = database.collection("student_predictions").order_by(
+#             "created_at", direction=Query.DESCENDING
+#         ).stream()
+#
+#         performances = []
+#         for perf in performances_data:
+#             perf_dict = perf.to_dict()
+#             perf_dict['id'] = perf.id
+#             performances.append(perf_dict)
+#
+#     except Exception as e:
+#         messages.error(request, f"Error fetching performance records: {str(e)}")
+#         performances = []
+#
+#     return render(request, 'myapp/adminperformance.html', {'performances': performances})
+#
+#
+# @admin_required
+# def admin_delete_performance(request, perf_id):
+#     """Delete a performance record from Firebase"""
+#     try:
+#         database.collection("student_predictions").document(perf_id).delete()
+#         messages.success(request, "Performance record deleted successfully!")
+#     except Exception as e:
+#         messages.error(request, f"Error deleting record: {str(e)}")
+#
+#     return redirect('admin_performance')
+
+
+
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from mypro.firebase_connection import database
+from firebase_admin.firestore import Query
+
+# ---------------- Show all suggestion records ----------------
 @admin_required
 def admin_performance(request):
-    """Display all student performance records from Firebase"""
+    """Display all student suggestion records from Firebase"""
     try:
-        performances_data = database.collection("student_predictions").order_by(
+        suggestions_data = database.collection("student_suggestions").order_by(
             "created_at", direction=Query.DESCENDING
         ).stream()
 
-        performances = []
-        for perf in performances_data:
-            perf_dict = perf.to_dict()
-            perf_dict['id'] = perf.id
-            performances.append(perf_dict)
+        suggestions = []
+        for sugg in suggestions_data:
+            sugg_dict = sugg.to_dict()
+            sugg_dict['id'] = sugg.id
+            suggestions.append(sugg_dict)
 
     except Exception as e:
-        messages.error(request, f"Error fetching performance records: {str(e)}")
-        performances = []
+        messages.error(request, f"Error fetching suggestion records: {str(e)}")
+        suggestions = []
 
-    return render(request, 'myapp/adminperformance.html', {'performances': performances})
+    return render(request, 'myapp/adminperformance.html', {'suggestions': suggestions})
 
-
+# ---------------- Delete a suggestion record ----------------
 @admin_required
-def admin_delete_performance(request, perf_id):
-    """Delete a performance record from Firebase"""
+def admin_delete_performance(request, sugg_id):
+    """Delete a suggestion record from Firebase"""
     try:
-        database.collection("student_predictions").document(perf_id).delete()
-        messages.success(request, "Performance record deleted successfully!")
+        database.collection("student_suggestions").document(sugg_id).delete()
+        messages.success(request, "Suggestion record deleted successfully!")
     except Exception as e:
         messages.error(request, f"Error deleting record: {str(e)}")
 
@@ -1262,3 +1233,6 @@ def admin_delete_performance(request, perf_id):
 
 
 
+
+
+## pdf

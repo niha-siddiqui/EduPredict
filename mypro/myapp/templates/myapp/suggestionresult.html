@@ -5,10 +5,10 @@
     <div class="container">
       <div class="row justify-content-center">
         <div class="col-lg-10 col-md-11">
-          
+
           <!-- Result Card -->
-          <div style="background: linear-gradient(135deg, rgba(22,34,57,0.95) 0%, rgba(12,18,40,0.98) 100%); padding: 60px; border-radius: 10px; box-shadow: 0px 10px 50px rgba(0,0,0,0.5); border: 1px solid rgba(245,164,37,0.1); position: relative; overflow: hidden;">
-            
+          <div id="result-content" style="background: linear-gradient(135deg, rgba(22,34,57,0.95) 0%, rgba(12,18,40,0.98) 100%); padding: 60px; border-radius: 10px; box-shadow: 0px 10px 50px rgba(0,0,0,0.5); border: 1px solid rgba(245,164,37,0.1); position: relative; overflow: hidden;">
+
             <!-- Decorative Elements -->
             <div style="position: absolute; top: -50px; right: -50px; width: 200px; height: 200px; background: radial-gradient(circle, rgba(245,164,37,0.1) 0%, transparent 70%); border-radius: 50%;"></div>
             <div style="position: absolute; bottom: -30px; left: -30px; width: 150px; height: 150px; background: radial-gradient(circle, rgba(245,164,37,0.08) 0%, transparent 70%); border-radius: 50%;"></div>
@@ -25,7 +25,7 @@
             </div>
 
             <div style="position: relative; z-index: 1;">
-              
+
               <!-- Student Info Card -->
               <div style="background: rgba(245,164,37,0.08); padding: 30px; border-radius: 8px; margin-bottom: 30px; text-align: center; border: 2px solid rgba(245,164,37,0.2);">
                 <h2 style="color: #fff; font-size: 32px; font-weight: 800; margin-bottom: 10px;">{{ student.name }}</h2>
@@ -144,7 +144,7 @@
               </div>
 
               <!-- Charts Section -->
-              <div class="row" style="margin-bottom: 30px;">
+              <div class="row no-break" style="margin-bottom: 30px;">
                 <!-- Subject Performance Chart -->
                 <div class="col-md-6" style="margin-bottom: 30px;">
                   <div style="background: rgba(245,164,37,0.03); padding: 30px; border-radius: 8px; border-left: 4px solid #f5a425;">
@@ -170,8 +170,15 @@
                 </div>
               </div>
 
-              <!-- Back Button -->
-              <div style="text-align: center;">
+              <!-- Action Buttons -->
+              <div style="text-align: center; display: flex; gap: 20px; justify-content: center; flex-wrap: wrap;">
+                <button onclick="downloadPDF()" id="pdfBtn" style="background: linear-gradient(135deg, #4bc0c0 0%, #36a2a2 100%);
+                  color: #fff; font-size: 15px; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 700;
+                  padding: 20px 50px; border: none; cursor: pointer; border-radius: 50px;
+                  box-shadow: 0px 8px 30px rgba(75,192,192,0.4); transition: all 0.4s;">
+                  <i class="fa fa-download" style="margin-right: 12px;"></i>Download PDF
+                </button>
+
                 <a href="javascript:history.back()" style="display: inline-block; background: linear-gradient(135deg, #f5a425 0%, #ff8800 100%); color: #fff; font-size: 15px; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 700; padding: 20px 50px; text-decoration: none; transition: all 0.4s; border-radius: 50px; box-shadow: 0px 8px 30px rgba(245,164,37,0.4);">
                   <i class="fa fa-arrow-left" style="margin-right: 12px;"></i>Back to Form
                 </a>
@@ -187,6 +194,7 @@
   </section>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <script>
     // Subject Performance Chart
     const subjectsChartCtx = document.getElementById('subjectsChart').getContext('2d');
@@ -356,12 +364,81 @@
         }
       }
     });
+
+    // PDF Download Function
+    function downloadPDF() {
+      const button = document.getElementById('pdfBtn');
+      const originalContent = button.innerHTML;
+
+      button.disabled = true;
+      button.innerHTML = '<i class="fa fa-spinner fa-spin" style="margin-right: 12px;"></i>Generating PDF...';
+
+      // Hide buttons before PDF generation
+      const actionButtons = button.parentElement;
+      actionButtons.style.display = 'none';
+
+      const element = document.getElementById('result-content');
+      const opt = {
+        margin: [8, 8, 8, 8],
+        filename: 'Career_Suggestion_{{ student.name|default:"Result" }}.pdf',
+        image: { type: 'jpeg', quality: 0.92 },
+        html2canvas: {
+          scale: 1.2,
+          useCORS: true,
+          backgroundColor: '#0c1228',
+          logging: false,
+          scrollY: 0,
+          scrollX: 0
+        },
+        jsPDF: {
+          unit: 'mm',
+          format: 'a4',
+          orientation: 'portrait'
+        },
+        pagebreak: {
+          mode: ['css', 'legacy'],
+          before: '.page-break-before',
+          after: '.page-break-after',
+          avoid: ['canvas', '.no-break']
+        }
+      };
+
+      html2pdf().set(opt).from(element).save().then(() => {
+        actionButtons.style.display = 'flex';
+        button.disabled = false;
+        button.innerHTML = originalContent;
+      }).catch(err => {
+        console.error('PDF generation error:', err);
+        actionButtons.style.display = 'flex';
+        button.disabled = false;
+        button.innerHTML = originalContent;
+        alert('Error generating PDF. Please try again.');
+      });
+    }
   </script>
 
   <style>
-    a[href]:hover {
+    button:hover, a[href]:hover {
       transform: translateY(-3px);
       box-shadow: 0px 12px 40px rgba(245,164,37,0.6);
+    }
+
+    button:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+      transform: none !important;
+    }
+
+    /* PDF specific styles */
+    .no-break {
+      page-break-inside: avoid;
+      break-inside: avoid;
+    }
+
+    @media print {
+      .no-break {
+        page-break-inside: avoid;
+      }
     }
 
     @media screen and (max-width: 767px) {
@@ -384,6 +461,15 @@
 
       canvas {
         max-height: 250px !important;
+      }
+
+      div[style*="display: flex"] {
+        flex-direction: column !important;
+      }
+
+      button, a[href] {
+        width: 100% !important;
+        padding: 16px 30px !important;
       }
     }
   </style>

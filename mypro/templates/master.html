@@ -5,22 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
     <link href="https://fonts.googleapis.com/css?family=Montserrat:100,200,300,400,500,600,700,800,900" rel="stylesheet">
-
     <title>Grad School HTML5 Template</title>
-
     <!-- Bootstrap core CSS -->
     <link href="/static/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-
     <!-- Additional CSS Files -->
     <link rel="stylesheet" href="/static/css/fontawesome.css">
     <link rel="stylesheet" href="/static/css/templatemo-grad-school.css">
     <link rel="stylesheet" href="/static/css/owl.css">
     <link rel="stylesheet" href="/static/css/lightbox.css">
-
 </head>
-
 <body>
-
   <!--header-->
   <header class="main-header clearfix" role="header">
     <div class="logo">
@@ -31,18 +25,25 @@
     <nav id="menu" class="main-nav" role="navigation">
       <ul class="main-menu">
         <li><a href="/">Home</a></li>
-
         <li class="has-submenu"><a href="">Predictions</a>
           <ul class="sub-menu">
             <li><a href="/survey_progress/">Progress Survey</a></li>
             <li><a href="/dropout/">DropOut</a></li>
             <li><a href="/survey/">Survey</a></li>
-              <li><a href="predict_full/">StudentPerfomance</a></li>
+            <li><a href="/suggestion/">StudentPerfomance</a></li>
           </ul>
         </li>
+        <li><a href="/#section2">About Us</a></li>
+        <li><a href="/#section4">Courses</a></li>
+        <li><a href="/contact/">Contact</a></li>
 
-        <li><a href="#section4">Courses</a></li>
-        <li><a href="contact">Contact</a></li>
+        <!-- Login/Logout dynamically -->
+  {% if request.session.username %}
+    <li style="color: #FFD700;">Hello, {{ request.session.username }}</li>
+    <li><a href="/logout">Logout</a></li>
+{% else %}
+    <li><a href="/login">Login</a></li>
+{% endif %}
       </ul>
     </nav>
   </header>
@@ -57,8 +58,8 @@
       <div class="row">
         <div class="col-md-12">
           <p>
-            Copyright 2020 by Grad School |
-            Design: TemplateMo | Distributed By: ThemeWagon
+            Copyright 2025 by aptech e project |
+            Design: Futurewavestech |
           </p>
         </div>
       </div>
@@ -68,7 +69,6 @@
   <!-- Scripts -->
   <script src="/static/vendor/jquery/jquery.min.js"></script>
   <script src="/static/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-
   <script src="/static/js/isotope.min.js"></script>
   <script src="/static/js/owl-carousel.js"></script>
   <script src="/static/js/lightbox.js"></script>
@@ -76,6 +76,20 @@
   <script src="/static/js/video.js"></script>
   <script src="/static/js/slick-slider.js"></script>
   <script src="/static/js/custom.js"></script>
-
 </body>
+<script>
+document.querySelectorAll('a[href*="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function(e) {
+        let href = this.getAttribute('href');
+        if(href.includes('#')){
+            const targetID = href.split('#')[1];
+            const target = document.getElementById(targetID);
+            if(target){
+                e.preventDefault();
+                target.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+    });
+});
+</script>
 </html>

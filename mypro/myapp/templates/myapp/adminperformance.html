@@ -1,11 +1,11 @@
-<!-- ========== myapp/templates/myapp/adminperformance.html ========== -->
+<!-- ========== myapp/templates/myapp/admin_suggestions.html ========== -->
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student Performance</title>
+    <title>Student Suggestions</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css">
@@ -26,7 +26,7 @@
         <div class="logo"><i class="fas fa-graduation-cap"></i> Admin Panel</div>
         <a href="{% url 'admin_dashboard' %}"><i class="fas fa-chart-line"></i> Dashboard</a>
         <a href="{% url 'admin_users' %}"><i class="fas fa-users"></i> Registered Users</a>
-        <a href="{% url 'admin_performance' %}" class="active"><i class="fas fa-chart-pie"></i> Student Performance</a>
+      <a href="{% url 'admin_performance' %}"><i class="fas fa-chart-pie"></i> Student Performance</a>
         <a href="{% url 'admin_surveys' %}"><i class="fas fa-clipboard-list"></i> Surveys</a>
         <a href="{% url 'admin_progress' %}"><i class="fas fa-chart-bar"></i> Progress Surveys</a>
         <a href="{% url 'admin_dropout' %}"><i class="fas fa-user-times"></i> Dropout Records</a>
@@ -37,7 +37,7 @@
     <div class="main-content">
         <nav class="navbar navbar-light">
             <div class="container-fluid">
-                <span class="navbar-brand mb-0 h1"><i class="fas fa-chart-pie"></i> Student Performance Records</span>
+                <span class="navbar-brand mb-0 h1"><i class="fas fa-lightbulb"></i> Student Perfomance Records</span>
             </div>
         </nav>
 
@@ -51,95 +51,79 @@
         {% endif %}
 
         <div class="content-card">
-            <h5 class="mb-4">All Performance Records ({{ performances|length }})</h5>
+            <h5 class="mb-4">All Suggestion Records ({{ suggestions|length }})</h5>
             <div class="table-responsive">
-                <table id="performanceTable" class="table table-hover">
+                <table id="suggestionTable" class="table table-hover">
                     <thead>
                         <tr>
                             <th>#</th>
                             <th>Student Name</th>
-                            <th>Email</th>
                             <th>Class</th>
+                            <th>Favourite Subject</th>
                             <th>Predicted Score</th>
-                            <th>Overall %</th>
                             <th>Top Field</th>
                             <th>Date</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for perf in performances %}
+                        {% for sugg in suggestions %}
                         <tr>
                             <td>{{ forloop.counter }}</td>
-                            <td>{{ perf.first_name }} {{ perf.last_name }}</td>
-                            <td>{{ perf.email }}</td>
-                            <td><span class="badge bg-info">{{ perf.class }}</span></td>
-                            <td><span class="badge bg-success">{{ perf.predicted_score }}%</span></td>
-                            <td><span class="badge bg-primary">{{ perf.overall_percentage }}%</span></td>
-                            <td>{{ perf.top_field }}</td>
-                            <td>{{ perf.created_at|date:"M d, Y" }}</td>
+                            <td>{{ sugg.name }}</td>
+                            <td><span class="badge bg-info">{{ sugg.student_class }}</span></td>
+                            <td>{{ sugg.favourite_subject }}</td>
+                            <td><span class="badge bg-success">{{ sugg.predicted_score }}%</span></td>
+                            <td>{{ sugg.field }}</td>
+                            <td>{{ sugg.created_at|date:"M d, Y" }}</td>
                             <td>
-                                <button class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#perfModal{{ perf.id }}">
+                                <button class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#suggModal{{ sugg.id }}">
                                     <i class="fas fa-eye"></i> View
                                 </button>
-                                <a href="{% url 'admin_delete_performance' perf.id %}" class="btn btn-danger btn-sm" onclick="return confirm('Delete this record?')">
+                                <a href="{% url 'admin_delete_performance' sugg.id %}" class="btn btn-danger btn-sm" onclick="return confirm('Delete this record?')">
                                     <i class="fas fa-trash"></i>
                                 </a>
                             </td>
                         </tr>
 
                         <!-- Modal for View Details -->
-                        <div class="modal fade" id="perfModal{{ perf.id }}" tabindex="-1">
+                        <div class="modal fade" id="suggModal{{ sugg.id }}" tabindex="-1">
                             <div class="modal-dialog modal-lg">
                                 <div class="modal-content">
                                     <div class="modal-header">
-                                        <h5 class="modal-title">Performance Details - {{ perf.first_name }} {{ perf.last_name }}</h5>
+                                        <h5 class="modal-title">Suggestion Details - {{ sugg.name }}</h5>
                                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                                     </div>
                                     <div class="modal-body">
                                         <div class="row">
                                             <div class="col-md-6">
-                                                <p><strong>Full Name:</strong> {{ perf.first_name }} {{ perf.last_name }}</p>
-                                                <p><strong>Email:</strong> {{ perf.email }}</p>
-                                                <p><strong>Age:</strong> {{ perf.age }} years</p>
-                                                <p><strong>Class:</strong> {{ perf.class }}</p>
+                                                <p><strong>Full Name:</strong> {{ sugg.name }}</p>
+                                                <p><strong>Class:</strong> {{ sugg.student_class }}</p>
+                                                <p><strong>Favourite Subject:</strong> {{ sugg.favourite_subject }}</p>
+                                                <p><strong>Weak Subject:</strong> {{ sugg.weak_subject }}</p>
                                             </div>
                                             <div class="col-md-6">
-                                                <p><strong>Predicted Score:</strong> <span class="badge bg-success">{{ perf.predicted_score }}%</span></p>
-                                                <p><strong>Overall Percentage:</strong> <span class="badge bg-primary">{{ perf.overall_percentage }}%</span></p>
-                                                <p><strong>Strength Subject:</strong> <span class="badge bg-info">{{ perf.strength_subject }}</span></p>
-                                                <p><strong>Weak Subject:</strong> <span class="badge bg-warning text-dark">{{ perf.weak_subject }}</span></p>
+                                                <p><strong>Predicted Score:</strong> <span class="badge bg-success">{{ sugg.predicted_score }}%</span></p>
+                                                <p><strong>Top Field:</strong> {{ sugg.field }}</p>
+                                                <p><strong>Careers:</strong></p>
+                                                <ul>
+                                                    {% for career in sugg.careers %}
+                                                        <li>{{ career }}</li>
+                                                    {% endfor %}
+                                                </ul>
+                                                <div class="alert alert-info">
+                                                    <strong>Motivation:</strong> {{ sugg.motivation }}
+                                                </div>
                                             </div>
                                         </div>
                                         <hr>
-                                        <h6>Subject-wise Marks</h6>
-                                        <div class="row">
-                                            {% for subject, marks in perf.subject_marks.items %}
-                                                <div class="col-md-4 mb-2">
-                                                    <strong>{{ subject }}:</strong> {{ marks }}/100
-                                                </div>
-                                            {% endfor %}
-                                        </div>
-                                        <hr>
-                                        <p><strong>Top Field:</strong> {{ perf.top_field }}</p>
-                                        <p><strong>Recommended Specializations:</strong></p>
-                                        <ul>
-                                            {% for spec in perf.top_specializations %}
-                                                <li>{{ spec }}</li>
-                                            {% endfor %}
-                                        </ul>
-                                        <hr>
-                                        <div class="alert alert-info">
-                                            <strong>Feedback:</strong> {{ perf.feedback }}
-                                        </div>
-                                        <hr>
-                                        <p class="text-muted"><small>Record Date: {{ perf.created_at|date:"M d, Y H:i" }}</small></p>
+                                        <p class="text-muted"><small>Record Date: {{ sugg.created_at|date:"M d, Y H:i" }}</small></p>
                                     </div>
                                 </div>
                             </div>
                         </div>
                         {% empty %}
-                        <tr><td colspan="9" class="text-center">No performance records yet</td></tr>
+                        <tr><td colspan="8" class="text-center">No suggestion records yet</td></tr>
                         {% endfor %}
                     </tbody>
                 </table>
@@ -153,9 +137,9 @@
     <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
     <script>
         $(document).ready(function() {
-            $('#performanceTable').DataTable({
+            $('#suggestionTable').DataTable({
                 "pageLength": 10,
-                "order": [[7, "desc"]]
+                "order": [[6, "desc"]]
             });
         });
     </script>

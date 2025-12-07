@@ -4,16 +4,16 @@ from django.urls import path
 from .import views
 urlpatterns = [
     path('backend/', admin.site.urls),
-    path("home", views.index,name="index"),
-    path('reg',views.register,name="reg"),
-    path('',views.login,name="log"),
-    path('logout',views.register,name="logout"),
+    path("", views.index,name="index"),
+    path('reg/',views.register,name="reg"),
+    path('login',views.login,name="log"),
+    path('logout',views.logout,name="logout"),
     path('predict_full/', views.predict_student_full_detailed, name='predict_student_full'), #neww
   # changed
     path('survey/', views.student_survey, name='student_survey'),
     path('survey_progress/', views.student_progress_survey, name='student_progress_survey'),
     path("dropout/", views.dropout_form, name="dropout"),
-    path("contact", views.contact, name="contact"),
+    path("contact/", views.contact, name="contact"),
     path("suggestion/", views.suggestion, name="suggestion"),
     path("suggestionresult/", views.suggestionresult, name="suggestionresult"),
 
@@ -38,6 +38,13 @@ urlpatterns = [
     path('admin/dropout/delete/<str:dropout_id>/', views.admin_delete_dropout, name='admin_delete_dropout'),
     path('admincontacts/', views.admin_contacts, name='admin_contacts'),
     path('admin/contacts/delete/<str:contact_id>/', views.admin_delete_contact, name='admin_delete_contact'),
+
+
+
+
+
+
+
 
 
 ]

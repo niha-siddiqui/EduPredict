@@ -14,8 +14,6 @@
       <div class="video-overlay header-text">
           <div class="caption">
               <h6>Graduate School of Management</h6>
-              <h3 style="color: white;"> welcome {{e}}</h3>
-              <a href="logout">logout</a>
               <h2><em>Your</em> Classroom</h2>
               <div class="main-button">
                   <div class="scroll-to-section"><a href="#section2">Discover more</a></div>
@@ -75,7 +73,7 @@
     </div>
   </section>
 
-  <section class="section why-us" data-section="section2">
+  <section class="section why-us" data-section="section2" id ="section2">
     <div class="container">
       <div class="row">
         <div class="col-md-12">
@@ -200,7 +198,7 @@
     </div>
   </section>
 
-  <section class="section courses" data-section="section4">
+  <section class="section courses" data-section="section4" id ="section4">
     <div class="container-fluid">
       <div class="row">
         <div class="col-md-12">
@@ -384,53 +382,28 @@
     </div>
   </section>
 
-  <section class="section contact" data-section="section6">
-    <div class="container">
-      <div class="row">
-        <div class="col-md-12">
-          <div class="section-heading">
-            <h2>Let’s Keep In Touch</h2>
-          </div>
-        </div>
-        <div class="col-md-6">
 
-        <!-- Do you need a working HTML contact-form script?
 
-                    Please visit https://templatemo.com/contact page -->
 
-          <form id="contact" action="" method="post">
-            <div class="row">
-              <div class="col-md-6">
-                  <fieldset>
-                    <input name="name" type="text" class="form-control" id="name" placeholder="Your Name" required="">
-                  </fieldset>
-                </div>
-                <div class="col-md-6">
-                  <fieldset>
-                    <input name="email" type="text" class="form-control" id="email" placeholder="Your Email" required="">
-                  </fieldset>
-                </div>
-              <div class="col-md-12">
-                <fieldset>
-                  <textarea name="message" rows="6" class="form-control" id="message" placeholder="Your message..." required=""></textarea>
-                </fieldset>
-              </div>
-              <div class="col-md-12">
-                <fieldset>
-                  <button type="submit" id="form-submit" class="button">Send Message Now</button>
-                </fieldset>
-              </div>
-            </div>
-          </form>
-        </div>
-        <div class="col-md-6">
-          <div id="map">
-            <iframe src="https://maps.google.com/maps?q=Av.+L%C3%BAcio+Costa,+Rio+de+Janeiro+-+RJ,+Brazil&t=&z=13&ie=UTF8&iwloc=&output=embed" width="100%" height="422px" frameborder="0" style="border:0" allowfullscreen></iframe>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
+   <script>
+  document.addEventListener("DOMContentLoaded", function() {
+    document.querySelectorAll('a[href^="/#"]').forEach(anchor => {
+        anchor.addEventListener('click', function(e) {
+            e.preventDefault();
+            const id = this.getAttribute('href').split('/')[1];  // '/#section2' => '#section2'
+            const target = document.querySelector(id);
+            if(target){
+                target.scrollIntoView({ behavior: 'smooth' });
+            }
+        });
+    });
+});
+   </script>
+
+
+
+
+
 
 
 {% endblock %}
