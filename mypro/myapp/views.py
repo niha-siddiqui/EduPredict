@@ -464,130 +464,99 @@ def student_progress_survey(request):
     return render(request, 'myapp/survey_progress.html', {'survey': survey})
 
 
-
-
-
-
-
-
-
-
-from django.shortcuts import render
-import pandas as pd
-import joblib
-import os
-from sklearn.ensemble import RandomForestClassifier
-
-# ---------------- Paths ----------------
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DATASET_PATH = os.path.join(BASE_DIR, "droupout_std.csv")
-MODEL_PATH = os.path.join(BASE_DIR, "dropout_model.pkl")
-
-# ---------------- Load dataset & train model ----------------
-if os.path.exists(MODEL_PATH):
-    model = joblib.load(MODEL_PATH)
-else:
-    df = pd.read_csv(DATASET_PATH)
-    X = df.drop("dropout", axis=1)
-    y = df["dropout"]
-    model = RandomForestClassifier()
-    model.fit(X, y)
-    joblib.dump(model, MODEL_PATH)
-
-# ---------------- Suggestions ----------------
-SUGGESTIONS = {
-    'gpa': 'Focus on weak subjects, complete assignments, join tutoring.',
-    'attendance': 'Improve attendance above 80%, manage travel time.',
-    'engagement': 'Participate more in class and discussions.',
-    'fees_issue': 'Apply for scholarships or financial aid.',
-    'family_support': 'Seek guidance from teachers or counselor.',
-    'travel_issue': 'Plan travel or seek transport help.'
-}
 @login_required
-# ---------------- View ----------------
-def dropout_form(request):
+def dropout_predict_v2(request):
+    import pandas as pd
+    import joblib
+    import os
+    from sklearn.ensemble import RandomForestClassifier
+
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+    CSV_PATH = os.path.join(BASE_DIR, "student_dropout_data_v2.csv")
+    MODEL_PATH = os.path.join(BASE_DIR, "dropout_model_v2.pkl")
+
+    # Ensure folders exist
+    os.makedirs(os.path.dirname(CSV_PATH), exist_ok=True)
+    os.makedirs(os.path.dirname(MODEL_PATH), exist_ok=True)
+
+    # Load or train model
+    if os.path.exists(MODEL_PATH):
+        model = joblib.load(MODEL_PATH)
+    else:
+        df = pd.read_csv(CSV_PATH)
+        X = df.drop("dropout", axis=1)
+        y = df["dropout"]
+
+        model = RandomForestClassifier()
+        model.fit(X, y)
+        joblib.dump(model, MODEL_PATH)
+
     if request.method == "POST":
-        # Get form inputs
-        gpa = float(request.POST.get("gpa"))
-        attendance = int(request.POST.get("attendance"))
-        engagement = int(request.POST.get("engagement"))
-        fees_issue = int(request.POST.get("fees_issue"))
-        family_support = int(request.POST.get("family_support"))
-        travel_issue = int(request.POST.get("travel_issue"))
+        gpa = float(request.POST["gpa"])
+        attendance = int(request.POST["attendance"])
+        engagement = int(request.POST["engagement"])
+        fin = int(request.POST["financial_issue"])
+        fam = int(request.POST["family_support"])
+        travel = int(request.POST["travel_issue"])
 
-        # Predict dropout
-        data = [[gpa, attendance, engagement, fees_issue, family_support, travel_issue]]
+        data = [[gpa, attendance, engagement, fin, fam, travel]]
+
         pred = model.predict(data)[0]
-        prob = model.predict_proba(data)[0][1] * 100
+        prob = round(model.predict_proba(data)[0][1] * 100, 2)
 
-        # Prepare reasons, suggestions, chart_data
-        reasons = []
+        # SEVERITY
+        severity = {
+            "GPA Issue": round(max(0, 4 - gpa) / 4, 2),
+            "Attendance Issue": round(max(0, 80 - attendance) / 80, 2),
+            "Engagement": round((3 - engagement) / 2, 2),
+            "Financial Issue": fin,
+            "Family Support Low": 1 if fam == 0 else 0,
+            "Travel Issue": travel
+        }
+
+        # SUGGESTIONS
         suggestions = []
-        chart_data = {}
+        if severity["GPA Issue"] > 0.4:
+            suggestions.append("Improve GPA through tutoring and study groups.")
+        if severity["Attendance Issue"] > 0.4:
+            suggestions.append("Increase attendance above 80% to stay enrolled.")
+        if severity["Engagement"] > 0.4:
+            suggestions.append("Participate more in class activities.")
+        if fin == 1:
+            suggestions.append("Apply for scholarship or financial aid.")
+        if fam == 0:
+            suggestions.append("Meet with counselor for emotional support.")
+        if travel == 1:
+            suggestions.append("Consider better transport planning.")
 
-        # GPA severity
-        gpa_sev = max(0, 4.0 - gpa)/4.0
-        if gpa_sev > 0.2:
-            reasons.append('Low GPA')
-            suggestions.append(SUGGESTIONS['gpa'])
-        chart_data['GPA'] = round(gpa_sev, 2)
+        # ⭐⭐⭐ SAVE TO FIRESTORE (NEW) ⭐⭐⭐
+        try:
+            database.collection("student_dropout_results").add({
+                "email": str(request.session.get("useremail", "unknown")),
+                "gpa": gpa,
+                "attendance": attendance,
+                "engagement": engagement,
+                "financial_issue": fin,
+                "family_support": fam,
+                "travel_issue": travel,
+                "prediction": int(pred),
+                "probability": prob,
+                "severity": severity,
+                "suggestions": suggestions,
+                "created_at": datetime.datetime.utcnow()
+            })
+        except Exception as e:
+            print("Firestore Save Error:", e)
 
-        # Attendance severity
-        att_sev = max(0, 75 - attendance)/75
-        if att_sev > 0.2:
-            reasons.append('Low Attendance')
-            suggestions.append(SUGGESTIONS['attendance'])
-        chart_data['Attendance'] = round(att_sev, 2)
-
-        # Engagement severity
-        eng_sev = (3 - engagement)/2
-        if eng_sev > 0.2:
-            reasons.append('Not Active in Class')
-            suggestions.append(SUGGESTIONS['engagement'])
-        chart_data['Engagement'] = round(eng_sev, 2)
-
-        # Fees issue
-        fees_sev = 1 if fees_issue == 1 else 0
-        if fees_sev > 0:
-            reasons.append('Cannot afford fees')
-            suggestions.append(SUGGESTIONS['fees_issue'])
-        chart_data['Fees'] = fees_sev
-
-        # Family support
-        fam_sev = 1 if family_support == 0 else 0
-        if fam_sev > 0:
-            reasons.append('Low Family Support')
-            suggestions.append(SUGGESTIONS['family_support'])
-        chart_data['Family'] = fam_sev
-
-        # Travel severity
-        trav_sev = 1 if travel_issue == 1 else 0
-        if trav_sev > 0:
-            reasons.append('Difficult Travel')
-            suggestions.append(SUGGESTIONS['travel_issue'])
-        chart_data['Travel'] = trav_sev
-
-        # Convert chart_data to lists for template
-        chart_labels = list(chart_data.keys())
-        chart_values = list(chart_data.values())
-        database.collection("dropout_Record").add({
-            "email": str(request.session.get("useremail", "unknown")),
-            "dropout_prediction": int(pred),  # convert np.int64 → int
-            "reasons": list(map(str, reasons)),  # ensure pure Python list of strings
-        })
-        return render(request, "myapp/dropout_result.html", {
+        return render(request, "myapp/result_v2.html", {
             "prediction": pred,
-            "probability": round(prob, 2),
-            "reasons": reasons,
-            "suggestions": suggestions,
-            "chart_labels": chart_labels,
-            "chart_values": chart_values
+            "probability": prob,
+            "severity_labels": list(severity.keys()),
+            "severity_values": list(severity.values()),
+            "suggestions": suggestions
         })
 
-    # For GET request, render the input form
-    return render(request, "myapp/dropout_form.html")
-
-# Add this import at top if not already there
+    return render(request, "myapp/form_v2.html")
 
 
 @login_required
@@ -978,7 +947,7 @@ def admin_dashboard(request):
     total_progress = len(progress_surveys)
 
     # Count dropout predictions
-    dropout_records = list(database.collection("dropout_Record").stream())
+    dropout_records = list(database.collection("student_dropout_results").stream())
     total_dropout = len(dropout_records)
 
     # Count contact messages
@@ -1097,26 +1066,27 @@ def admin_delete_progress(request, progress_id):
     return redirect('admin_progress')
 
 
-# View All Dropout Records
+# View All Dropout v2 Records
 @admin_required
 def admin_dropout(request):
-    dropout_data = database.collection("dropout_Record").stream()
+    dropout_data = database.collection("student_dropout_results").stream()
     dropout_list = []
     for drop in dropout_data:
         drop_dict = drop.to_dict()
-        drop_dict['id'] = drop.id
+        drop_dict['id'] = drop.id  # Firebase Document ID
         dropout_list.append(drop_dict)
 
-    return render(request, 'myapp/admindropout.html', {'dropout_list': dropout_list})
+    return render(request, 'myapp/admindropout.html', {
+        'dropout_list': dropout_list
+    })
 
 
-# Delete Dropout Record
+# Delete Dropout v2 Record
 @admin_required
 def admin_delete_dropout(request, dropout_id):
-    database.collection("dropout_Record").document(dropout_id).delete()
-    messages.success(request, "Dropout record deleted successfully!")
+    database.collection("student_dropout_results").document(dropout_id).delete()
+    messages.success(request, "Dropout result deleted successfully!")
     return redirect('admin_dropout')
-
 
 @admin_required
 def admin_contacts(request):

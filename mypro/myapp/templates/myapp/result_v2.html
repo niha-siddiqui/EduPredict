@@ -1,0 +1,526 @@
+{% extends "master.html"%}
+{% block lala %}
+<head>
+    <title>Dropout V2 Result</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #0c1228;
+            padding: 100px 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        #result-content {
+            background: linear-gradient(135deg, rgba(22,34,57,0.95) 0%, rgba(12,18,40,0.98) 100%);
+            padding: 60px;
+            border-radius: 10px;
+            box-shadow: 0px 10px 50px rgba(0,0,0,0.5);
+            border: 1px solid rgba(245,164,37,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Decorative Elements */
+        .deco-circle-1 {
+            position: absolute;
+            top: -50px;
+            right: -50px;
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle, rgba(245,164,37,0.1) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        .deco-circle-2 {
+            position: absolute;
+            bottom: -30px;
+            left: -30px;
+            width: 150px;
+            height: 150px;
+            background: radial-gradient(circle, rgba(245,164,37,0.08) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        /* Header Section */
+        .header-section {
+            text-align: center;
+            margin-bottom: 50px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .icon-circle {
+            display: inline-block;
+            background: linear-gradient(135deg, #f5a425 0%, #ff8800 100%);
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 25px;
+            box-shadow: 0 8px 25px rgba(245,164,37,0.4);
+        }
+
+        .icon-circle i {
+            font-size: 40px;
+            color: #fff;
+        }
+
+        .main-title {
+            color: #fff;
+            font-size: 36px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+        }
+
+        .main-title .highlight {
+            color: #f5a425;
+        }
+
+        .title-divider {
+            width: 80px;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #f5a425, transparent);
+            margin: 20px auto;
+        }
+
+        /* Risk Badge */
+        .risk-badge {
+            background: rgba(245,164,37,0.08);
+            padding: 30px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            text-align: center;
+            border: 2px solid rgba(245,164,37,0.2);
+            position: relative;
+            z-index: 1;
+        }
+
+        .high-risk {
+            background: rgba(255,99,132,0.1);
+            border-color: rgba(255,99,132,0.3);
+        }
+
+        .low-risk {
+            background: rgba(75,192,192,0.1);
+            border-color: rgba(75,192,192,0.3);
+        }
+
+        .risk-badge h3 {
+            font-size: 28px;
+            font-weight: 800;
+            margin: 0;
+        }
+
+        .high-risk h3 {
+            color: #ff6384;
+        }
+
+        .low-risk h3 {
+            color: #4bc0c0;
+        }
+
+        /* Probability Display */
+        .probability-section {
+            text-align: center;
+            margin: 30px 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        .probability-label {
+            color: rgba(255,255,255,0.7);
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        .probability-value {
+            font-size: 72px;
+            font-weight: 800;
+            color: #f5a425;
+            text-shadow: 0 0 30px rgba(245,164,37,0.5);
+        }
+
+        /* Chart Container */
+        .chart-box {
+            background: rgba(245,164,37,0.03);
+            padding: 30px;
+            border-radius: 8px;
+            margin: 30px 0;
+            border-left: 4px solid #f5a425;
+            position: relative;
+            z-index: 1;
+        }
+
+        .chart-box h3 {
+            color: #f5a425;
+            font-size: 20px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        .chart-box h3 i {
+            margin-right: 10px;
+        }
+
+        .chart-inner {
+            background: rgba(250,250,250,0.03);
+            padding: 20px;
+            border-radius: 8px;
+        }
+
+        /* Suggestions Box */
+        .suggestions-box {
+            background: rgba(75,192,192,0.08);
+            padding: 35px;
+            border-radius: 8px;
+            margin: 30px 0;
+            border-left: 4px solid #4bc0c0;
+            position: relative;
+            z-index: 1;
+        }
+
+        .suggestions-box h3 {
+            color: #4bc0c0;
+            font-size: 20px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 25px;
+        }
+
+        .suggestions-box h3 i {
+            margin-right: 10px;
+        }
+
+        .suggestions-box ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .suggestions-box li {
+            color: rgba(255,255,255,0.85);
+            font-size: 16px;
+            line-height: 32px;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(250,250,250,0.05);
+            position: relative;
+            padding-left: 30px;
+        }
+
+        .suggestions-box li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            top: 12px;
+            color: #4bc0c0;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            text-align: center;
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 40px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .btn {
+            display: inline-block;
+            color: #fff;
+            font-size: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            font-weight: 700;
+            padding: 20px 50px;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+            border-radius: 50px;
+            transition: all 0.4s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4bc0c0 0%, #36a2a2 100%);
+            box-shadow: 0px 8px 30px rgba(75,192,192,0.4);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #f5a425 0%, #ff8800 100%);
+            box-shadow: 0px 8px 30px rgba(245,164,37,0.4);
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0px 12px 40px rgba(245,164,37,0.6);
+        }
+
+        .btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .btn i {
+            margin-right: 12px;
+        }
+
+        /* Responsive */
+        @media screen and (max-width: 767px) {
+            #result-content {
+                padding: 40px 25px;
+            }
+
+            .main-title {
+                font-size: 28px;
+            }
+
+            .probability-value {
+                font-size: 56px;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+                padding: 16px 30px;
+            }
+        }
+
+        /* PDF specific */
+        .no-break {
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
+
+        @media print {
+            body {
+                background: #0c1228;
+                padding: 0;
+            }
+            .action-buttons {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div id="result-content">
+
+        <!-- Decorative Elements -->
+        <div class="deco-circle-1"></div>
+        <div class="deco-circle-2"></div>
+
+        <!-- Header Section -->
+        <div class="header-section">
+            <div class="icon-circle">
+                <i class="fa fa-graduation-cap"></i>
+            </div>
+            <h1 class="main-title">
+                Dropout <span class="highlight">Prediction</span> Result
+            </h1>
+            <div class="title-divider"></div>
+            <p style="color: rgba(255,255,255,0.7); font-size: 16px;">Advanced Risk Assessment - Version 2.0</p>
+        </div>
+
+        <!-- Risk Badge -->
+        {% if prediction == 1 %}
+            <div class="risk-badge high-risk">
+                <h3>⚠️ High Dropout Risk Detected</h3>
+            </div>
+        {% else %}
+            <div class="risk-badge low-risk">
+                <h3>✅ Low Dropout Risk</h3>
+            </div>
+        {% endif %}
+
+        <!-- Probability -->
+        <div class="probability-section">
+            <p class="probability-label">Risk Probability</p>
+            <div class="probability-value">{{ probability }}%</div>
+        </div>
+
+        <!-- Chart Section -->
+        <div class="chart-box no-break">
+            <h3><i class="fa fa-bar-chart"></i>Severity Analysis</h3>
+            <div class="chart-inner">
+                <canvas id="severityChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Suggestions -->
+        <div class="suggestions-box no-break">
+            <h3><i class="fa fa-lightbulb-o"></i>Recommended Actions</h3>
+            <ul>
+                {% for s in suggestions %}
+                <li>{{ s }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+            <button onclick="downloadPDF()" id="pdfBtn" class="btn btn-primary">
+                <i class="fa fa-download"></i>Download PDF
+            </button>
+            <a href="{% url 'dropout_v2' %}" class="btn btn-secondary">
+                <i class="fa fa-refresh"></i>Predict Again
+            </a>
+        </div>
+
+    </div>
+</div>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+<script>
+    // Chart Configuration
+    const ctx = document.getElementById('severityChart').getContext('2d');
+
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: {{ severity_labels|safe }},
+            datasets: [{
+                label: 'Severity Level',
+                data: {{ severity_values|safe }},
+                backgroundColor: [
+                    'rgba(75, 192, 192, 0.8)',
+                    'rgba(245, 164, 37, 0.8)',
+                    'rgba(255, 99, 132, 0.8)',
+                    'rgba(153, 102, 255, 0.8)',
+                    'rgba(255, 159, 64, 0.8)'
+                ],
+                borderColor: [
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(245, 164, 37, 1)',
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(153, 102, 255, 1)',
+                    'rgba(255, 159, 64, 1)'
+                ],
+                borderWidth: 2,
+                borderRadius: 8,
+                borderSkipped: false,
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(22,34,57,0.95)',
+                    titleColor: '#f5a425',
+                    bodyColor: '#fff',
+                    borderColor: '#f5a425',
+                    borderWidth: 1,
+                    padding: 12
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        color: 'rgba(250,250,250,0.05)',
+                        borderColor: 'rgba(250,250,250,0.1)'
+                    },
+                    ticks: {
+                        color: 'rgba(255,255,255,0.7)',
+                        font: { size: 12 }
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false,
+                        borderColor: 'rgba(250,250,250,0.1)'
+                    },
+                    ticks: {
+                        color: 'rgba(255,255,255,0.7)',
+                        font: { size: 11 }
+                    }
+                }
+            }
+        }
+    });
+
+    // PDF Download Function
+    function downloadPDF() {
+        const button = document.getElementById('pdfBtn');
+        const originalContent = button.innerHTML;
+
+        button.disabled = true;
+        button.innerHTML = '<i class="fa fa-spinner fa-spin" style="margin-right: 12px;"></i>Generating PDF...';
+
+        const actionButtons = button.parentElement;
+        actionButtons.style.display = 'none';
+
+        const element = document.getElementById('result-content');
+        const opt = {
+            margin: [8, 8, 8, 8],
+            filename: 'Dropout_Prediction_Result.pdf',
+            image: { type: 'jpeg', quality: 0.92 },
+            html2canvas: {
+                scale: 1.2,
+                useCORS: true,
+                backgroundColor: '#0c1228',
+                logging: false,
+                scrollY: 0,
+                scrollX: 0
+            },
+            jsPDF: {
+                unit: 'mm',
+                format: 'a4',
+                orientation: 'portrait'
+            },
+            pagebreak: {
+                mode: ['css', 'legacy'],
+                avoid: ['canvas', '.no-break']
+            }
+        };
+
+        html2pdf().set(opt).from(element).save().then(() => {
+            actionButtons.style.display = 'flex';
+            button.disabled = false;
+            button.innerHTML = originalContent;
+        }).catch(err => {
+            console.error('PDF generation error:', err);
+            actionButtons.style.display = 'flex';
+            button.disabled = false;
+            button.innerHTML = originalContent;
+            alert('Error generating PDF. Please try again.');
+        });
+    }
+</script>
+
+</body>
+{% endblock %}

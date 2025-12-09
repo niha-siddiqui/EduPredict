@@ -12,7 +12,7 @@ urlpatterns = [
   # changed
     path('survey/', views.student_survey, name='student_survey'),
     path('survey_progress/', views.student_progress_survey, name='student_progress_survey'),
-    path("dropout/", views.dropout_form, name="dropout"),
+    path("dropout-v2/", views.dropout_predict_v2, name="dropout_v2"),
     path("contact/", views.contact, name="contact"),
     path("suggestion/", views.suggestion, name="suggestion"),
     path("suggestionresult/", views.suggestionresult, name="suggestionresult"),
