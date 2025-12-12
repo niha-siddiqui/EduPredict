@@ -9,6 +9,7 @@ urlpatterns = [
     path('login',views.login,name="log"),
     path('logout',views.logout,name="logout"),
     path('predict_full/', views.predict_student_full_detailed, name='predict_student_full'), #neww
+    path("education-news/", views.education_news, name="education-news"),
   # changed
     path('survey/', views.student_survey, name='student_survey'),
     path('survey_progress/', views.student_progress_survey, name='student_progress_survey'),

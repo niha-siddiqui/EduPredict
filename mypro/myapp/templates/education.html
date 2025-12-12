@@ -1,0 +1,45 @@
+{% extends "master.html"%}
+{% block lala %}
+
+<!-- ***** News Section Start ***** -->
+<section class="section courses" data-section="section1" id="section1" style="padding-top: 140px;">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="section-heading">
+                    <h2>Latest Education News from BBC</h2>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row" style="padding: 0 50px;">
+            {% for n in news %}
+            <div class="col-lg-4 col-md-6 col-sm-12" style="margin-bottom: 30px;">
+                <div class="item">
+                    <div class="down-content">
+                        <h4>{{ n.title }}</h4>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+<!-- ***** News Section End ***** -->
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    document.querySelectorAll('a[href^="/#"]').forEach(anchor => {
+        anchor.addEventListener('click', function(e) {
+            e.preventDefault();
+            const id = this.getAttribute('href').split('/')[1];
+            const target = document.querySelector(id);
+            if(target){
+                target.scrollIntoView({ behavior: 'smooth' });
+            }
+        });
+    });
+});
+</script>
+
+{% endblock %}

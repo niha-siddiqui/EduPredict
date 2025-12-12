@@ -7,6 +7,8 @@ from mypro.firebase_connection import database
 firebase_key ="AIzaSyD8qf5ulXocDrn8llaJ-jv_70vve3GrjWc"
 import  requests
 
+from bs4 import BeautifulSoup
+from django.shortcuts import render
 from mypro.firebase_connection import database
 
 # Create your views here.
@@ -1206,3 +1208,70 @@ def admin_delete_performance(request, sugg_id):
 
 
 ## pdf
+
+
+# def education_news(request):
+#     url = "https://www.geo.tv/category/21/education"
+#
+#     response = requests.get(url)
+#     soup = BeautifulSoup(response.text, "html.parser")
+#
+#     news_list = []
+#
+#     # Correct selector (WORKING)
+#     items = soup.find_all("div", class_="listing__content")
+#
+#     print("Items Found:", len(items))  # DEBUG
+#
+#     for item in items:
+#         a_tag = item.find("a")   # first <a> tag
+#
+#         if a_tag:
+#             title = a_tag.get_text(strip=True)
+#             link = "https://www.geo.tv" + a_tag.get("href")
+#
+#             print("Title:", title)  # DEBUG
+#             print("Link:", link)    # DEBUG
+#
+#             news_list.append({
+#                 "title": title,
+#                 "link": link
+#             })
+#
+#     return render(request, "education.html", {"news": news_list})
+
+import requests
+from bs4 import BeautifulSoup
+from django.shortcuts import render
+
+def education_news(request):
+    url = "https://www.bbc.com/news/education"
+    headers = {
+        "User-Agent": "Mozilla/5.0"
+    }
+
+    response = requests.get(url, headers=headers)
+    print("Status Code:", response.status_code)
+
+    soup = BeautifulSoup(response.text, "html.parser")
+
+    news_list = []
+
+    # Find all <p> tags with class containing PromoHeadline
+    articles = soup.find_all("p", class_=lambda x: x and "PromoHeadline" in x)
+
+    print("Articles found:", len(articles))
+
+    for index, p in enumerate(articles):
+        span = p.find("span", {"aria-hidden": "false"})
+        if span:
+            title = span.get_text(strip=True)
+            print(f"{index+1}: {title}")  # Debug
+
+            news_list.append({"title": title})
+
+    return render(request, "education.html", {"news": news_list})
+
+
+
+
